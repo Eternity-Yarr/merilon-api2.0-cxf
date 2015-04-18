@@ -2,12 +2,17 @@ package org.yarr.merlionapi2;
 
 import https.api_merlion_com.dl.mlservice2.MLPort;
 import https.api_merlion_com.dl.mlservice2.MLService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.ws.BindingProvider;
 import java.util.Map;
+import java.util.logging.LoggingPermission;
 
 public class MLPortProvider
 {
+    private final static Logger log = LoggerFactory.getLogger(MLPortProvider.class);
+
     private final String LOGIN;
     private final String PASSWORD;
 
@@ -26,6 +31,9 @@ public class MLPortProvider
                 {
                     Thread.sleep(60 * 1000);
                 } catch (InterruptedException ignored) {}
+            else {
+                log.info("Initialized SOAP port with login {}", LOGIN);
+            }
         }
     }
 
