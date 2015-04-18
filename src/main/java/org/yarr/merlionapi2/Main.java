@@ -1,18 +1,17 @@
 package org.yarr.merlionapi2;
 
-import https.api_merlion_com.dl.mlservice2.ArrayOfCatalogResult;
-import https.api_merlion_com.dl.mlservice2.ArrayOfShipmentMethodsResult;
-import https.api_merlion_com.dl.mlservice2.MLPort;
+import org.yarr.merlionapi2.directory.Catalog;
+import org.yarr.merlionapi2.model.CatalogNode;
+import org.yarr.merlionapi2.service.CatalogService;
 
 public class Main
 {
     public static void main(String... args) {
         String login = System.getProperty("login");
         String password = System.getProperty("password");
-        MLPort port = new MLPortProvider(login, password).get();
-        ArrayOfCatalogResult aos = port.getCatalog("ALL");
-        System.out.println(aos.getItem());
-        String he = port.helloWorld("hai");
-        System.out.println(he);
+        CatalogService service = new CatalogService(new MLPortProvider(login, password));
+        Catalog catalog = service.get();
+        for(CatalogNode node: catalog.nodes().values())
+            System.out.println(catalog.canonicalName(node));
     }
 }

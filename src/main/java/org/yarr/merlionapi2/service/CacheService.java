@@ -20,9 +20,8 @@ public class CacheService
 
     Map<Class<?>, Callable<?>> retrievers = new HashMap<>();
 
-    public void put(Object o, Callable<?> retriever) {
-        repository.put(o.getClass(), o);
-        retrievers.put(o.getClass(), retriever);
+    public void put(Class<?> clazz, Callable<?> retriever) {
+        retrievers.put(clazz, retriever);
     }
 
     @SuppressWarnings("unchecked") // This cast simply couldn't fail
@@ -37,5 +36,13 @@ public class CacheService
             );
             return null;
         }
+    }
+
+    public static CacheService i() {
+        return Lazy.service;
+    }
+
+    private static class Lazy {
+        public static final CacheService service = new CacheService();
     }
 }

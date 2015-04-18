@@ -31,4 +31,10 @@ public class CatalogNode
     public boolean topLevel() {
         return parentId == null;
     }
+
+    @Override
+    public String toString()
+    {
+        return String.format("[%s] %s", id, name);
+    }
 }
