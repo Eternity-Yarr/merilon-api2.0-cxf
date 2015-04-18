@@ -24,7 +24,7 @@ public class MLPortProvider
     private volatile MLPort port;
 
     //TODO: kill me with fire
-    private void initialize() {
+    private synchronized void initialize() {
         while(port == null) {
             if (!tryInitialize())
                 try
