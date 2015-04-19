@@ -1,5 +1,7 @@
 package org.yarr.merlionapi2.model;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 public class CatalogNode
 {
     private final String parentId;
@@ -13,16 +15,19 @@ public class CatalogNode
         this.id = id;
     }
 
+    @JsonProperty
     public String parentId()
     {
         return parentId;
     }
 
+    @JsonProperty
     public String name()
     {
         return name;
     }
 
+    @JsonProperty
     public String id()
     {
         return id;

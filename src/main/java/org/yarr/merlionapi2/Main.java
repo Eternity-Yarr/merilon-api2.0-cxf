@@ -9,9 +9,13 @@ public class Main
     public static void main(String... args) {
         String login = System.getProperty("login");
         String password = System.getProperty("password");
-        CatalogService service = new CatalogService(new MLPortProvider(login, password));
-        Catalog catalog = service.get();
+        CatalogService service = new CatalogService(
+                new MLPortProvider(login, password)
+        );
+        /* Catalog catalog = service.get();
         for(CatalogNode node: catalog.nodes().values())
             System.out.println(catalog.canonicalName(node));
-    }
+            */
+        RestApplication.startUp();
+        }
 }
