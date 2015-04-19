@@ -57,6 +57,10 @@ public class TaskQueue
         this.executorService.shutdown();
     }
 
+    public int size() {
+        return tasks.size();
+    }
+
     public static TaskQueue i() {
         return Lazy.service;
     }

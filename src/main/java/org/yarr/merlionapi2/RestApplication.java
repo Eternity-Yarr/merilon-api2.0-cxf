@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yarr.merlionapi2.rest.BindRest;
 import org.yarr.merlionapi2.rest.CatalogRest;
+import org.yarr.merlionapi2.rest.MonitorRest;
 import org.yarr.merlionapi2.rest.TrackRest;
 
 import javax.ws.rs.ApplicationPath;
@@ -66,7 +67,9 @@ public class RestApplication extends Application
         return ImmutableSet.of(
                 TrackRest.class,
                 BindRest.class,
-                CatalogRest.class
+                CatalogRest.class,
+                MonitorRest.class,
+                JacksonConfiguration.class
         );
     }
 }
