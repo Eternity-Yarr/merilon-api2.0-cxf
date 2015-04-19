@@ -35,7 +35,8 @@ public class RestApplication extends Application
             server.join();
         } catch (Exception e)
         {
-            log.error("Something bad happened during server startup");
+            log.error("Something bad happened during server startup, exiting", e);
+            System.exit(1);
         }
     }
 

@@ -15,13 +15,13 @@ import java.util.stream.Collectors;
 public class TrackService
 {
     private final Logger log = LoggerFactory.getLogger(TrackService.class);
-    private final static String STORAGE = "tracked_catalogs.json";
+    private final static String STORAGE = "./data/tracked_catalogs.json";
     private final static ObjectMapper mapper = new ObjectMapper();
 
     private TrackedNodes trackedNodes = get();
 
     public TrackedNodes all() {
-        return trackedNodes;
+        return get();
     }
 
     private TrackedNodes get() {
@@ -49,6 +49,7 @@ public class TrackService
                     .writerWithDefaultPrettyPrinter()
                     .writeValueAsString(newTrackedNodes);
             FileUtils.writeStringToFile(new File(STORAGE), json);
+            log.info("Wrote {} nodes to file '{}'", nodes.size(), STORAGE);
             trackedNodes = newTrackedNodes;
 
         } catch (Exception e) {

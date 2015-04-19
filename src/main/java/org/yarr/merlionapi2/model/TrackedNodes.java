@@ -10,6 +10,7 @@ import java.util.List;
 
 public class TrackedNodes
 {
+    //FIXME: duplicates?
     private final List<CatalogNode> trackedNodes = new ArrayList<>();
 
     @JsonCreator
