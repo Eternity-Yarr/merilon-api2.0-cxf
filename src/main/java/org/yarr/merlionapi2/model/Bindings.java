@@ -4,27 +4,24 @@ import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.List;
+import java.util.Map;
 
 public class Bindings
 {
-    private final String catalogId;
-    private final List<Bond> bonds;
+    private final Map<String, List<Bond>> bonds;
 
     @JsonCreator
-    public Bindings(@JsonProperty("catalogId") String catalogId, @JsonProperty("bonds") List<Bond> bonds) {
-        this.catalogId = catalogId;
+    public Bindings(@JsonProperty("bonds") Map<String, List<Bond>> bonds) {
         this.bonds = bonds;
     }
 
     @JsonProperty
-    public String catalogId()
-    {
-        return catalogId;
-    }
-
-    @JsonProperty
-    public List<Bond> bonds()
+    public Map<String, List<Bond>> bonds()
     {
         return bonds;
+    }
+
+    public List<Bond> bonds(String catId) {
+        return bonds.get(catId);
     }
 }
