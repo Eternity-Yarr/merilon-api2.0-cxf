@@ -15,11 +15,7 @@ import java.util.stream.Collectors;
 public class CatalogRetriever implements Callable<Catalog>
 {
     private final static Logger log = LoggerFactory.getLogger(CatalogRetriever.class);
-    private final MLPortProvider portProvider;
 
-    public CatalogRetriever(MLPortProvider portProvider) {
-        this.portProvider = portProvider;
-    }
 
     @Override
     public Catalog call() throws Exception
@@ -28,7 +24,7 @@ public class CatalogRetriever implements Callable<Catalog>
     }
 
     private Map<String, CatalogNode> retrieve() {
-        ArrayOfCatalogResult result = portProvider.get().getCatalog("ALL");
+        ArrayOfCatalogResult result = MLPortProvider.i().get().getCatalog("ALL");
         log.debug("Got {} catalog entries", result.getItem().size());
 
         return result

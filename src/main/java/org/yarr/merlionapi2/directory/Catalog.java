@@ -1,10 +1,12 @@
 package org.yarr.merlionapi2.directory;
 
 import com.google.common.collect.ImmutableMap;
-import org.eclipse.jetty.util.ArrayQueue;
 import org.yarr.merlionapi2.model.CatalogNode;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Catalog

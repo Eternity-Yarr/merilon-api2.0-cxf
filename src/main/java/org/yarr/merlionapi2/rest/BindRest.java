@@ -8,6 +8,7 @@ import org.yarr.merlionapi2.service.BindService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 @Path("/bind")
 @Produces(MediaType.APPLICATION_JSON)
@@ -16,11 +17,17 @@ public class BindRest
     private BindService service = BindService.i();
 
     @GET @Path("/")
-    public Bindings all(@QueryParam("catId") String catalogId) {
-        Preconditions.checkNotNull(catalogId, "catId parameter is required");
-        Preconditions.checkState(!catalogId.isEmpty(), "catId shouldn't be empty");
+    public Bindings all() {
         return service.all();
     }
+
+    @GET @Path("/cat/{catId}")
+    public List<Bond> all(@PathParam("catId") String catalogId) {
+        Preconditions.checkNotNull(catalogId, "catId parameter is required");
+        Preconditions.checkState(!catalogId.isEmpty(), "catId shouldn't be empty");
+        return service.get(catalogId);
+    }
+
 
     @PUT @Path("/create")
     public Bindings bind(@QueryParam("catId") String catalogId, @QueryParam("merlId") String merlionId, @QueryParam("id") String id){

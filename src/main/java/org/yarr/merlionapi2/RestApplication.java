@@ -7,8 +7,9 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yarr.merlionapi2.rest.TrackRest;
 import org.yarr.merlionapi2.rest.BindRest;
+import org.yarr.merlionapi2.rest.CatalogRest;
+import org.yarr.merlionapi2.rest.TrackRest;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -63,7 +64,9 @@ public class RestApplication extends Application
     public Set<Class<?>> getClasses()
     {
         return ImmutableSet.of(
-                TrackRest.class, BindRest.class
+                TrackRest.class,
+                BindRest.class,
+                CatalogRest.class
         );
     }
 }

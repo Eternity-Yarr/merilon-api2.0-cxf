@@ -43,6 +43,10 @@ public class BindService
         return bindings;
     }
 
+    public List<Bond> get(String catalogId) {
+        return get().bonds().get(catalogId);
+    }
+
     private Bindings set(Map<String, List<Bond>> nodes) {
         try
         {
@@ -62,10 +66,6 @@ public class BindService
         }
 
         return bindings;
-    }
-
-    public static BindService i() {
-        return Lazy.service;
     }
 
     public Bindings bind(String catalogId, Bond bond)
@@ -187,6 +187,10 @@ public class BindService
                 break;
         }
         return ret;    }
+
+    public static BindService i() {
+        return Lazy.service;
+    }
 
     private static class Lazy {
         public static final BindService service = new BindService();

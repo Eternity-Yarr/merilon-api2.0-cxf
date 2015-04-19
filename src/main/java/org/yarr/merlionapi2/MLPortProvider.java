@@ -4,6 +4,7 @@ import https.api_merlion_com.dl.mlservice2.MLPort;
 import https.api_merlion_com.dl.mlservice2.MLService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yarr.merlionapi2.service.ConfigService;
 
 import javax.xml.ws.BindingProvider;
 import java.util.Map;
@@ -21,10 +22,9 @@ public class MLPortProvider
         this.PASSWORD = password;
     }
 
-    private volatile MLPort port;
+    private MLPort port;
 
-    //TODO: kill me with fire
-    private synchronized void initialize() {
+    private void initialize() {
         while(port == null) {
             if (!tryInitialize())
                 try
@@ -40,11 +40,12 @@ public class MLPortProvider
     private boolean tryInitialize() {
         try
         {
-            port = new MLService().getMLPort();
+            MLService service = new MLService();
+            port = service.getMLPort();
             Map<String, Object> rc = ((BindingProvider) port).getRequestContext();
             rc.put(BindingProvider.USERNAME_PROPERTY, LOGIN);
             rc.put(BindingProvider.PASSWORD_PROPERTY, PASSWORD);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             port = null;
             return false;
         }
@@ -61,5 +62,17 @@ public class MLPortProvider
             return port;
         }
 
+    }
+
+    public static MLPortProvider i() {
+        return Lazy.service;
+    }
+
+    private static class Lazy {
+        public static final MLPortProvider service =
+                new MLPortProvider(
+                        ConfigService.i().merlionLogin(),
+                        ConfigService.i().merlionPassword()
+                );
     }
 }
