@@ -13,20 +13,17 @@ public class TrackRest
 {
     private TrackService service = TrackService.i();
 
-    @GET
-    @Path("/")
+    @GET @Path("/")
     public TrackedNodes list() {
       return service.all();
     }
 
-    @PUT
-    @Path("/")
+    @PUT @Path("/")
     public TrackedNodes add(@QueryParam("id") String id) {
         return service.track(new CatalogNode(null, "testnode", id));
     }
 
-    @DELETE
-    @Path("/")
+    @DELETE @Path("/")
     public TrackedNodes discard(@QueryParam("id") String id) {
         return service.discard(new CatalogNode(null, "testnode", id));
     }
