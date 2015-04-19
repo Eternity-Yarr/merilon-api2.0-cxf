@@ -1,6 +1,7 @@
 package org.yarr.merlionapi2.model;
 
 import com.google.common.collect.ImmutableList;
+import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.ArrayList;
@@ -11,7 +12,8 @@ public class TrackedNodes
 {
     private final List<CatalogNode> trackedNodes = new ArrayList<>();
 
-    public TrackedNodes(List<CatalogNode> trackedNodes) {
+    @JsonCreator
+    public TrackedNodes(@JsonProperty("nodes") List<CatalogNode> trackedNodes) {
         this.trackedNodes.addAll(trackedNodes);
     }
 
