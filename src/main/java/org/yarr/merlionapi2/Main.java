@@ -1,7 +1,6 @@
 package org.yarr.merlionapi2;
 
-import org.yarr.merlionapi2.directory.Catalog;
-import org.yarr.merlionapi2.model.CatalogNode;
+import org.yarr.merlionapi2.scheduler.TaskQueue;
 import org.yarr.merlionapi2.service.CatalogService;
 
 public class Main
@@ -16,6 +15,7 @@ public class Main
         for(CatalogNode node: catalog.nodes().values())
             System.out.println(catalog.canonicalName(node));
             */
+        TaskQueue.i();
         RestApplication.startUp();
         }
 }

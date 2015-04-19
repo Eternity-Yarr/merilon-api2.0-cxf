@@ -27,8 +27,26 @@ public class RestApplication extends Application
         context.addServlet(holder, "/");
 
         InetSocketAddress listenAddress = new InetSocketAddress("127.0.0.1", 8080);
-        Server server = new Server(listenAddress);
+
+        final Server server = new Server(listenAddress);
         server.setHandler(context);
+        server.setStopAtShutdown(true);
+        server.setStopTimeout(500);
+        Runtime.getRuntime().addShutdownHook(
+                new Thread(){
+                    @Override
+                    public void run()
+                    {
+                        try
+                        {
+                            log.info("Stopping rest server");
+                            server.stop();
+                        } catch (Exception e) {
+                        log.error("Exception: ", e);}
+                    }
+                }
+        );
+
         try
         {
             server.start();
