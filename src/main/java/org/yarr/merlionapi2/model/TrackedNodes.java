@@ -4,14 +4,14 @@ import com.google.common.collect.ImmutableList;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class TrackedNodes
 {
-    //FIXME: duplicates?
-    private final List<CatalogNode> trackedNodes = new ArrayList<>();
+    private final Set<CatalogNode> trackedNodes = new HashSet<>();
 
     @JsonCreator
     public TrackedNodes(@JsonProperty("nodes") List<CatalogNode> trackedNodes) {

@@ -2,7 +2,6 @@ package org.yarr.merlionapi2.model;
 
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.yarr.merlionapi2.directory.Catalog;
 
 public class CatalogNode
 {
@@ -47,5 +46,24 @@ public class CatalogNode
     public String toString()
     {
         return String.format("[%s] %s", id, name);
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CatalogNode that = (CatalogNode) o;
+
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return id != null ? id.hashCode() : 0;
     }
 }

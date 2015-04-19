@@ -49,7 +49,7 @@ public class TrackService
                     .writerWithDefaultPrettyPrinter()
                     .writeValueAsString(newTrackedNodes);
             FileUtils.writeStringToFile(new File(STORAGE), json);
-            log.info("Wrote {} nodes to file '{}'", nodes.size(), STORAGE);
+            log.info("Wrote {} nodes to file '{}'", newTrackedNodes.nodes().size(), STORAGE);
             trackedNodes = newTrackedNodes;
 
         } catch (Exception e) {
