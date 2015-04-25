@@ -9,6 +9,7 @@ import org.yarr.merlionapi2.persistence.Database;
 import org.yarr.merlionapi2.scheduler.TaskQueue;
 import org.yarr.merlionapi2.service.BindService;
 import org.yarr.merlionapi2.service.CatalogService;
+import org.yarr.merlionapi2.service.MonitorService;
 import org.yarr.merlionapi2.service.TrackService;
 
 import javax.ws.rs.GET;
@@ -20,7 +21,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Path("/_monitor")
@@ -79,11 +79,12 @@ public class MonitorRest
             stats.put("Shipments methods availabe", res
                     .getItem()
                     .stream()
-                    .map( x -> x.getCode() + ":" + x.getDescription())
+                    .map(x -> x.getCode() + ":" + x.getDescription())
                     .collect(Collectors.toList()));
         }
         if(!error.isEmpty())
             stats.put("Errors", error);
+        stats.put("Logging events", MonitorService.info());
         return stats;
     }
 }
