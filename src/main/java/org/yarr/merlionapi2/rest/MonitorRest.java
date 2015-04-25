@@ -67,24 +67,16 @@ public class MonitorRest
             error.add(e.getClass().getName() + ": " + e.getMessage());
         }
 
-        Map<String, Object> stats = new HashMap<>();
-        stats.put("Tasks in queue", TaskQueue.i().size());
-        stats.put("Catalogs count", catalogService.get().nodes().size());
-        stats.put("Currently tracking categories", trackService.all().nodes());
-        stats.put("Bindings", bindService.all().bonds().size());
-        stats.put("Database accessible", dbAccessible);
-        stats.put("Merlion API accesible", port != null);
-        if (port != null) {
-            ArrayOfShipmentMethodsResult res = portProvider.get().getShipmentMethods("");
-            stats.put("Shipments methods availabe", res
-                    .getItem()
-                    .stream()
-                    .map(x -> x.getCode() + ":" + x.getDescription())
-                    .collect(Collectors.toList()));
-        }
+        Map<String, Object> stats = new TreeMap<>();
+        stats.put("1. Tasks in queue", TaskQueue.i().size());
+        stats.put("4. Catalogs count", catalogService.get().nodes().size());
+        stats.put("6. Currently tracking categories", trackService.all().nodes());
+        stats.put("5. Bindings", bindService.all().bonds().size());
+        stats.put("2. Database accessible", dbAccessible);
+        stats.put("3. Merlion API accesible", port != null);
         if(!error.isEmpty())
             stats.put("Errors", error);
-        stats.put("Logging events", MonitorService.info());
+        stats.put("7. Logging events", MonitorService.info());
         return stats;
     }
 }
