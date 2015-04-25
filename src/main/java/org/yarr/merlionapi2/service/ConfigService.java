@@ -37,4 +37,12 @@ public class ConfigService
     public String mysqlPassword() {
         return config.mysqlPassword;
     }
+
+    public int merlionSupplierId() {
+        return config.merlionSupplierId;
+    }
+
+    public int merlionStoreId() {
+        return config.merlionStoreId;
+    }
 }

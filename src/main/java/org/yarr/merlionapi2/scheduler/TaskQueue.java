@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class TaskQueue
 {
     private final static Logger log = LoggerFactory.getLogger(TaskQueue.class);
-    ScheduledExecutorService executorService = Executors
+    private ScheduledExecutorService executorService = Executors
             .newSingleThreadScheduledExecutor();
     private Queue<Runnable> tasks = new ConcurrentLinkedQueue<>();
 
