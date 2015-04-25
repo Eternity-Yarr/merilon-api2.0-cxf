@@ -25,4 +25,16 @@ public class ConfigService
     public String merlionPassword() {
         return config.apiPassword;
     }
+
+    public String mysqlUri() {
+        return config.mysqlUri;
+    }
+
+    public String mysqlUser() {
+        return config.mysqlUser;
+    }
+
+    public String mysqlPassword() {
+        return config.mysqlPassword;
+    }
 }
