@@ -4,6 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.yarr.merlionapi2.model.CatalogNode;
 import org.yarr.merlionapi2.model.TrackedNodes;
 
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class TrackService
 {
     private final Logger log = LoggerFactory.getLogger(TrackService.class);
@@ -80,12 +82,4 @@ public class TrackService
     }
 
     public void refresh() {}
-
-    public static TrackService i() {
-        return Lazy.service;
-    }
-
-    private static class Lazy {
-        public static final TrackService service = new TrackService();
-    }
 }

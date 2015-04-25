@@ -4,12 +4,14 @@ import https.api_merlion_com.dl.mlservice2.MLPort;
 import https.api_merlion_com.dl.mlservice2.MLService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.yarr.merlionapi2.service.ConfigService;
 
 import javax.xml.ws.BindingProvider;
 import java.util.Map;
-import java.util.logging.LoggingPermission;
 
+@Component
 public class MLPortProvider
 {
     private final static Logger log = LoggerFactory.getLogger(MLPortProvider.class);
@@ -17,9 +19,10 @@ public class MLPortProvider
     private final String LOGIN;
     private final String PASSWORD;
 
-    public MLPortProvider(String login, String password) {
-        this.LOGIN = login;
-        this.PASSWORD = password;
+    @Autowired
+    public MLPortProvider(ConfigService config) {
+        this.LOGIN = config.merlionLogin();
+        this.PASSWORD = config.merlionPassword();
     }
 
     private MLPort port;
@@ -62,17 +65,5 @@ public class MLPortProvider
             return port;
         }
 
-    }
-
-    public static MLPortProvider i() {
-        return Lazy.service;
-    }
-
-    private static class Lazy {
-        public static final MLPortProvider service =
-                new MLPortProvider(
-                        ConfigService.i().merlionLogin(),
-                        ConfigService.i().merlionPassword()
-                );
     }
 }

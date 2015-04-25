@@ -2,6 +2,8 @@ package org.yarr.merlionapi2.rest;
 
 import com.google.common.base.Preconditions;
 import org.apache.cxf.common.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.yarr.merlionapi2.model.Bindings;
 import org.yarr.merlionapi2.model.Bond;
 import org.yarr.merlionapi2.service.BindService;
@@ -12,9 +14,15 @@ import java.util.List;
 
 @Path("/bind")
 @Produces(MediaType.APPLICATION_JSON)
+@Component
 public class BindRest
 {
-    private BindService service = BindService.i();
+    private final BindService service;
+
+    @Autowired
+    public BindRest(BindService service) {
+        this.service = service;
+    }
 
     @GET @Path("/")
     public Bindings all() {

@@ -5,6 +5,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
+import org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yarr.merlionapi2.rest.BindRest;
@@ -21,11 +22,27 @@ import java.util.Set;
 public class RestApplication extends Application
 {
     private static final Logger log = LoggerFactory.getLogger(RestApplication.class);
+
+    private final Set<Object> singletons;
+
+    public RestApplication(
+
+    ) {
+        TrackRest track = SpringContext.ctx().getBean(TrackRest.class);
+        BindRest bind = SpringContext.ctx().getBean(BindRest.class);
+        CatalogRest catalog = SpringContext.ctx().getBean(CatalogRest.class);
+        MonitorRest monitor = SpringContext.ctx().getBean(MonitorRest.class);
+        singletons = ImmutableSet.of(
+                track, bind, catalog, monitor
+        );
+    }
+
     public static void startUp()
     {
         HttpServletDispatcher dispatcher = new HttpServletDispatcher();
         ServletHolder holder = new ServletHolder(dispatcher);
         ServletContextHandler context = new ServletContextHandler();
+        context.addEventListener(new ResteasyBootstrap());
         context.setInitParameter("javax.ws.rs.Application", "org.yarr.merlionapi2.RestApplication");
         context.addServlet(holder, "/");
 
@@ -62,13 +79,14 @@ public class RestApplication extends Application
     }
 
     @Override
+    public Set<Object> getSingletons() {
+        return singletons;
+    }
+
+    @Override
     public Set<Class<?>> getClasses()
     {
         return ImmutableSet.of(
-                TrackRest.class,
-                BindRest.class,
-                CatalogRest.class,
-                MonitorRest.class,
                 JacksonConfiguration.class
         );
     }

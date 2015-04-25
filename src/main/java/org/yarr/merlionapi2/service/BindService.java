@@ -4,6 +4,8 @@ import org.apache.commons.io.FileUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.yarr.merlionapi2.model.Bindings;
 import org.yarr.merlionapi2.model.Bond;
 
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Service
 public class BindService
 {
     private final Logger log = LoggerFactory.getLogger(BindService.class);
@@ -186,13 +189,6 @@ public class BindService
             if(ret != null)
                 break;
         }
-        return ret;    }
-
-    public static BindService i() {
-        return Lazy.service;
-    }
-
-    private static class Lazy {
-        public static final BindService service = new BindService();
+        return ret;
     }
 }

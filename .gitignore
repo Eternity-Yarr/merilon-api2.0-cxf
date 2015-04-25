@@ -6,3 +6,4 @@ config/
 target/
 data/
 deploy.sh
+config.json
