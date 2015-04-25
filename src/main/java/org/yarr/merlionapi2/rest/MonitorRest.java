@@ -21,7 +21,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Path("/_monitor")
 @Produces(MediaType.APPLICATION_JSON)
@@ -76,7 +75,9 @@ public class MonitorRest
         stats.put("3. Merlion API accesible", port != null);
         if(!error.isEmpty())
             stats.put("Errors", error);
-        stats.put("7. Logging events", MonitorService.info());
+        List<String> events = new ArrayList<>(MonitorService.info());
+        Collections.reverse(events);
+        stats.put("7. Logging events", events);
         return stats;
     }
 }
