@@ -57,6 +57,7 @@ public class CategoryService
             return new Stock(new HashMap<>());
         }
     }
+
     private static class ItemsRetriever implements Callable<Category>{
         private static final RateLimiter getItemsLimiter = RateLimiter.create(3.0);
         private final MLPortProvider portProvider;

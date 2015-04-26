@@ -9,4 +9,8 @@ public class Stock
     {
         this.stocks = stocks;
     }
+
+    public StockItem item(String itemId) {
+        return stocks.get(itemId);
+    }
 }
