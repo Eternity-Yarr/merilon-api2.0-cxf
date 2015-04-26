@@ -1,7 +1,8 @@
 package org.yarr.merlionapi2;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.springframework.context.ApplicationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.yarr.merlionapi2.model.Config;
 import org.yarr.merlionapi2.scheduler.TaskQueue;
@@ -10,8 +11,12 @@ import java.io.File;
 
 public class Main
 {
+    public static final Logger log = LoggerFactory.getLogger(Main.class);
     public static Config config;
     public static void main(String... args) throws Exception {
+        Thread.setDefaultUncaughtExceptionHandler(
+                (t, e) -> log.error("Uncaught exception flying by, catching", e)
+        );
         String configFile = System.getProperty("config");
         if (configFile == null)
             configFile = "./config.json";
@@ -24,7 +29,6 @@ public class Main
             System.out.println(catalog.canonicalName(node));
             */
         ctx.refresh();
-
         TaskQueue.i();
         RestApplication.startUp();
         }

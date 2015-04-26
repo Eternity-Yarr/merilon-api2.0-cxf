@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Transaction
 {
     private static final Logger log = LoggerFactory.getLogger(Transaction.class);
-    private static AtomicLong counter = new AtomicLong(0);
+    private static AtomicLong counter = new AtomicLong(System.currentTimeMillis());
 
     private final Connection connection;
     private boolean closed = false;
@@ -29,7 +29,7 @@ public class Transaction
     private void begin() throws SQLException {
         log.debug("Starting transaction #{} on {}", transactionNo, connection);
         try (Statement s = connection.createStatement()) {
-            s.execute("BEGIN TRANSACTION");
+            s.execute("BEGIN");
         }
     }
 
@@ -66,7 +66,7 @@ public class Transaction
             resultSets.add(rs);
             return rs;
         } catch (SQLException e) {
-            log.error("Exception occurred, rolling back transaction #{}", transactionNo, e);
+            log.error("Exception occurred ({}), rolling back transaction #{}", e.getMessage(), transactionNo, e);
             rollback();
             return null;
         }

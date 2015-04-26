@@ -44,7 +44,15 @@ public class MonitorService
         return concatenated
                 .values()
                 .stream()
-                .map(x -> x.getLevel().toString() + ": " + x.getRenderedMessage())
+                .map(
+                        x -> {
+                            String ti =
+                                x.getThrowableInformation() != null ?
+                                " [" + x.getThrowableInformation().getThrowable().getClass().getName() + " at " + x.getThrowableInformation().getThrowable().getStackTrace()[x.getThrowableInformation().getThrowable().getStackTrace().length - 1] + "]"
+                            : "";
+                            return x.getLevel().toString() + ": " + x.getRenderedMessage() + ti;
+                        }
+                )
                 .collect(Collectors.toList());
     }
     public static List<String> warn() {
