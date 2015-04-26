@@ -1,11 +1,16 @@
 package org.yarr.merlionapi2.service;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.yarr.merlionapi2.model.StockItem;
 import org.yarr.merlionapi2.persistence.Database;
 import org.yarr.merlionapi2.persistence.Transaction;
 
+import javax.swing.text.html.Option;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,6 +18,7 @@ import java.sql.SQLException;
 @Service
 public class StoreService
 {
+    private static Logger log = LoggerFactory.getLogger(StoreService.class);
     private final Database db;
     private final int merlionSupplierId;
     private final int merlionStoreId;
@@ -26,7 +32,9 @@ public class StoreService
 
     public boolean alreadyInStock(int itemId) throws SQLException {
         Transaction t = new Transaction(db.c());
-        return alreadyInStock(t, itemId);
+        boolean val = alreadyInStock(t, itemId);
+        t.commitAndCleanup();
+        return val;
     }
 
     public boolean alreadyInStock(Transaction t, int itemId) throws SQLException {
@@ -39,9 +47,55 @@ WHERE item_id = ? AND store_id != ? AND supplier_id != ? AND aviable > 0
                 "SELECT count(1) \n" +
                 "FROM my_availability \n" +
                 "WHERE item_id = ? AND store_id != ? AND supplier_id != ? AND aviable > 0\n";
-        PreparedStatement ps =t.ps(SQL);
+        PreparedStatement ps = t.ps(SQL);
+        ps.setInt(1, itemId);
+        ps.setInt(2, merlionStoreId);
+        ps.setInt(3, merlionSupplierId);
         ResultSet rs = t.rs(ps);
+        return rs.next();
+    }
+
+    public Optional<Integer> getPrice(int itemId) throws SQLException {
+        Transaction t = new Transaction(db.c());
+        Optional<Integer> val = getPrice(t, itemId);
         t.commitAndCleanup();
-        return true;
+        return val;
+    }
+
+    public Optional<Integer> getPrice(Transaction t, int itemId) throws SQLException {
+/*
+SELECT price FROM b_catalog_price WHERE product_id = ?
+ */
+        String SQL = "SELECT price FROM b_catalog_price WHERE product_id = ?";
+        PreparedStatement ps = t.ps(SQL);
+        ps.setInt(1, itemId);
+        ResultSet rs = t.rs(ps);
+        if(rs.next()) {
+            return Optional.of(rs.getInt(1));
+        } else {
+            return Optional.absent();
+        }
+
+    }
+
+    public void setPrice(int itemId, int price) throws SQLException {
+        Transaction t = new Transaction(db.c());
+        setPrice(t, itemId, price);
+        t.commitAndCleanup();
+    }
+
+    public void setPrice(Transaction t, int itemId, int price) throws SQLException {
+        Preconditions.checkArgument(price != 0, "Tried to set price to 0");
+/*
+UPDATE b_catalog_price SET price = ? WHERE product_id = ?
+ */
+        String SQL = "UPDATE b_catalog_price SET price = ? WHERE product_id = ?";
+        PreparedStatement ps = t.ps(SQL);
+        ps.setInt(1, price);
+        ps.setInt(2, itemId);
+        int rowsUpdated = ps.executeUpdate();
+        if(rowsUpdated != 1) {
+            log.warn("Updated {} rows instead of 1 during modification of price of {} product_id", itemId);
+        }
     }
 }
