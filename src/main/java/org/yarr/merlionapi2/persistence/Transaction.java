@@ -72,8 +72,27 @@ public class Transaction
         }
     }
 
-    public void commitAndCleanup() throws SQLException {
+    public void cleanupAndRollback() throws SQLException {
+        Preconditions.checkArgument(!closed, "Already closed");
+        log.debug("Rolling back and cleaning up transaction #{}", transactionNo);
+        cleanup();
+        rollback();
+        log.debug("Releasing underlying connection, transaction #{}", transactionNo);
+        connection.close();
+        closed = true;
+    }
+
+    public void cleanupAndCommit() throws SQLException {
+        Preconditions.checkArgument(!closed, "Already closed");
         log.debug("Commiting and cleaning up transaction #{}", transactionNo);
+        cleanup();
+        commit();
+        log.debug("Releasing underlying connection, transaction #{}", transactionNo);
+        connection.close();
+        closed = true;
+    }
+
+    private void cleanup() {
         Preconditions.checkArgument(!closed, "Already closed");
         resultSets.stream().forEach(rs -> {
             try
@@ -93,10 +112,5 @@ public class Transaction
                 log.debug("Got an exception while trying to close prepared statement, transaction #{}", transactionNo);
             }
         });
-
-        commit();
-        log.debug("Releasing underlying connection, transaction #{}", transactionNo);
-        connection.close();
-        closed = true;
     }
 }
