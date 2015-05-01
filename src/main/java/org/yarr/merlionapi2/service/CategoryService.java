@@ -3,7 +3,10 @@ package org.yarr.merlionapi2.service;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.RateLimiter;
+import https.api_merlion_com.dl.mlservice2.ArrayOfItemsAvailResult;
 import https.api_merlion_com.dl.mlservice2.ArrayOfItemsResult;
+import https.api_merlion_com.dl.mlservice2.ItemsAvailResult;
+import https.api_merlion_com.dl.mlservice2.ItemsResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,7 +81,12 @@ public class CategoryService
             double throttle = getItemsLimiter.acquire();
             log.debug("Waited {} seconds for rate limit", throttle);
             ArrayOfItemsResult result = portProvider.get().getItems(catId, "", "1", 0, 10000);
-            return new HashMap<>();
+            Map<String, Item> items = new HashMap<>();
+            for(ItemsResult ir: result.getItem()) {
+                Item item = new Item(ir.getVendorPart(), ir.getNo(), ir.getName(), ir.getBrand());
+                items.put(item.id(), item);
+            }
+            return items;
         }
     }
 
@@ -102,8 +110,15 @@ public class CategoryService
         {
             double throttle = getItemsAvailLimiter.acquire();
             log.debug("Waited {} seconds for rate limit", throttle);
+            Map<String, StockItem> itemsStock = new HashMap<>();
+            ArrayOfItemsAvailResult availResult = portProvider.get().getItemsAvail(catId, "", "", "true", "");
+            for(ItemsAvailResult ia : availResult.getItem())
+            {
+                StockItem si = new StockItem(ia.getPriceClient(), ia.getAvailableClient(), ia.getNo());
+                itemsStock.put(si.id(), si);
+            }
 
-            return new HashMap<>();
+            return itemsStock;
         }
     }
 
