@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryService
@@ -28,7 +30,7 @@ public class CategoryService
 
     private final Cache<String, Category> categoryCache = CacheBuilder
             .newBuilder()
-            .expireAfterWrite(1, TimeUnit.HOURS)
+            .expireAfterWrite(30, TimeUnit.MINUTES)
             .build();
 
     private final Cache<String, Stock> stockCache = CacheBuilder
@@ -81,12 +83,10 @@ public class CategoryService
             double throttle = getItemsLimiter.acquire();
             log.debug("Waited {} seconds for rate limit", throttle);
             ArrayOfItemsResult result = portProvider.get().getItems(catId, "", "1", 0, 10000);
-            Map<String, Item> items = new HashMap<>();
-            for(ItemsResult ir: result.getItem()) {
-                Item item = new Item(ir.getVendorPart(), ir.getNo(), ir.getName(), ir.getBrand());
-                items.put(item.id(), item);
-            }
-            return items;
+            return result.getItem()
+                    .parallelStream()
+                    .map(ir -> new Item(ir.getVendorPart(), ir.getNo(), ir.getName(), ir.getBrand()))
+                    .collect(Collectors.toMap(Item::id, Function.<Item>identity()));
         }
     }
 
@@ -110,15 +110,11 @@ public class CategoryService
         {
             double throttle = getItemsAvailLimiter.acquire();
             log.debug("Waited {} seconds for rate limit", throttle);
-            Map<String, StockItem> itemsStock = new HashMap<>();
             ArrayOfItemsAvailResult availResult = portProvider.get().getItemsAvail(catId, "", "", "true", "");
-            for(ItemsAvailResult ia : availResult.getItem())
-            {
-                StockItem si = new StockItem(ia.getPriceClient(), ia.getAvailableClient(), ia.getNo());
-                itemsStock.put(si.id(), si);
-            }
-
-            return itemsStock;
+            return availResult.getItem()
+                    .parallelStream()
+                    .map(ia -> new StockItem(ia.getPriceClient(), ia.getAvailableClient(), ia.getNo()))
+                    .collect(Collectors.toMap(StockItem::id, Function.<StockItem>identity()));
         }
     }
 
