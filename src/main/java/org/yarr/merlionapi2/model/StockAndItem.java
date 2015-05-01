@@ -5,11 +5,13 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 public class StockAndItem
 {
+    private final String id;
     private final Item item;
     private final StockItem stock;
 
     @JsonCreator
-    public StockAndItem(Item item, StockItem stock) {
+    public StockAndItem(String id, Item item, StockItem stock) {
+        this.id = id;
         this.item = item;
         this.stock = stock;
     }
@@ -22,5 +24,9 @@ public class StockAndItem
     @JsonProperty
     public StockItem stock() {
         return stock;
+    }
+
+    public String id() {
+        return id;
     }
 }

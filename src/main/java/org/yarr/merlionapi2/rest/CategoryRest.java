@@ -30,8 +30,7 @@ public class CategoryRest
         this.catalogService = catalogService;
     }
 
-    @GET
-    @Path("/")
+    @GET @Path("/")
     public Map<String, Integer> all() {
         return ImmutableMap.of(
                 "Category entries", categoryService.caches().getKey().asMap().keySet().size(),
@@ -39,25 +38,22 @@ public class CategoryRest
         );
     }
 
-    @GET
-    @Path("/info/{catId}")
+    @GET @Path("/info/{catId}")
     public List<Item> items(@PathParam("catId") String catId) {
         return categoryService.category(catalogService.get().nodes().get(catId)).all();
     }
 
-    @GET
-    @Path("/stock/{catId}")
+    @GET @Path("/stock/{catId}")
     public List<StockItem> stock(@PathParam("catId") String catId) {
         return categoryService.stock(catalogService.get().nodes().get(catId)).all();
     }
 
-    @GET
-    @Path("/both/{catId}")
+    @GET @Path("/both/{catId}")
     public List<StockAndItem> consolidated(@PathParam("catId") String catId) {
         Category cat = categoryService.category(catalogService.get().nodes().get(catId));
         Stock stock = categoryService.stock(catalogService.get().nodes().get(catId));
         return cat.items().values().parallelStream()
-                .map(i -> new StockAndItem(i, stock.item(i.id())))
+                .map(i -> new StockAndItem(i.id(), i, stock.item(i.id())))
                 .collect(
                         Collectors.toList()
                 );

@@ -88,7 +88,7 @@ public class BindService
 
     public Bindings stage(String catalogId, String merlionId)
     {
-        Bond bond = new Bond(merlionId, "-1");
+        Bond bond = new Bond(merlionId, catalogId, "-1");
         return bind(catalogId, bond);
     }
 

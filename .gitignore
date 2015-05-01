@@ -7,3 +7,4 @@ target/
 data/
 deploy.sh
 config.json
+hs*.log
