@@ -8,10 +8,7 @@ import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yarr.merlionapi2.rest.BindRest;
-import org.yarr.merlionapi2.rest.CatalogRest;
-import org.yarr.merlionapi2.rest.MonitorRest;
-import org.yarr.merlionapi2.rest.TrackRest;
+import org.yarr.merlionapi2.rest.*;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -32,8 +29,9 @@ public class RestApplication extends Application
         BindRest bind = SpringContext.ctx().getBean(BindRest.class);
         CatalogRest catalog = SpringContext.ctx().getBean(CatalogRest.class);
         MonitorRest monitor = SpringContext.ctx().getBean(MonitorRest.class);
+        CategoryRest category = SpringContext.ctx().getBean(CategoryRest.class);
         singletons = ImmutableSet.of(
-                track, bind, catalog, monitor
+                track, bind, catalog, monitor, category
         );
     }
 

@@ -25,11 +25,6 @@
         <appender-ref ref="console"/>
     </logger>
 
-    <logger name="org.yarr" additivity="true">
-        <level value="info"/>
-        <appender-ref ref="monitor"/>
-    </logger>
-
     <logger name="com.mchange.v2" additivity="false">
         <level value="info"/>
         <appender-ref ref="console"/>
@@ -42,7 +37,8 @@
 
     <root>
 		<priority value ="debug" />
+        <appender-ref ref="monitor"/>
 		<appender-ref ref="console" />
-	</root>
+    </root>
 
 </log4j:configuration>

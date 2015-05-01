@@ -1,11 +1,17 @@
 package org.yarr.merlionapi2.model;
 
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonPropertyOrder;
+
+@JsonPropertyOrder({"id", "price", "available"})
 public class StockItem
 {
     private final float price;
     private final int available;
     private final String id;
 
+    @JsonCreator
     public StockItem(float price, int available, String id)
     {
         this.price = price;
@@ -13,14 +19,17 @@ public class StockItem
         this.id = id;
     }
 
+    @JsonProperty
     public float price() {
         return price;
     }
 
+    @JsonProperty
     public int available() {
         return available;
     }
 
+    @JsonProperty
     public String id() {
         return id;
     }

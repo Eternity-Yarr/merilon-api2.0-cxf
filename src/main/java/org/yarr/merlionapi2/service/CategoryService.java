@@ -7,6 +7,7 @@ import https.api_merlion_com.dl.mlservice2.ArrayOfItemsAvailResult;
 import https.api_merlion_com.dl.mlservice2.ArrayOfItemsResult;
 import https.api_merlion_com.dl.mlservice2.ItemsAvailResult;
 import https.api_merlion_com.dl.mlservice2.ItemsResult;
+import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,10 @@ public class CategoryService
         }
     }
 
+    public Pair<Cache<String, Category>, Cache<String, Stock>> caches() {
+        return new Pair<>(categoryCache, stockCache);
+    }
+
     private static class ItemsRetriever implements Callable<Category>{
         private static final RateLimiter getItemsLimiter = RateLimiter.create(3.0);
         private final MLPortProvider portProvider;
@@ -85,6 +90,7 @@ public class CategoryService
             ArrayOfItemsResult result = portProvider.get().getItems(catId, "", "1", 0, 10000);
             return result.getItem()
                     .parallelStream()
+                    .filter(ir -> ir.getNo() != null)
                     .map(ir -> new Item(ir.getVendorPart(), ir.getNo(), ir.getName(), ir.getBrand()))
                     .collect(Collectors.toMap(Item::id, Function.<Item>identity()));
         }
@@ -110,9 +116,10 @@ public class CategoryService
         {
             double throttle = getItemsAvailLimiter.acquire();
             log.debug("Waited {} seconds for rate limit", throttle);
-            ArrayOfItemsAvailResult availResult = portProvider.get().getItemsAvail(catId, "", "", "true", "");
+            ArrayOfItemsAvailResult availResult = portProvider.get().getItemsAvail(catId, "ДОСТАВКА", "06-05-15", "true", "");
             return availResult.getItem()
                     .parallelStream()
+                    .filter(ia -> ia.getNo() != null)
                     .map(ia -> new StockItem(ia.getPriceClient(), ia.getAvailableClient(), ia.getNo()))
                     .collect(Collectors.toMap(StockItem::id, Function.<StockItem>identity()));
         }
