@@ -9,6 +9,8 @@ import org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yarr.merlionapi2.rest.*;
+import org.yarr.merlionapi2.rest.errors.NPEMapper;
+import org.yarr.merlionapi2.rest.errors.PokemonMapper;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -85,7 +87,7 @@ public class RestApplication extends Application
     public Set<Class<?>> getClasses()
     {
         return ImmutableSet.of(
-                JacksonConfiguration.class
+                JacksonConfiguration.class, NPEMapper.class, PokemonMapper.class
         );
     }
 }

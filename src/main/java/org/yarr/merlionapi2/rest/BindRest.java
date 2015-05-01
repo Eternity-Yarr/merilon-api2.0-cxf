@@ -99,6 +99,6 @@ public class BindRest
         if(b != null)
             return itemsRepository.get(b);
         else
-            return null;
+            throw new NullPointerException("There is no such bindings");
     }
 }
