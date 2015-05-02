@@ -5,10 +5,10 @@ import org.springframework.stereotype.Component;
 import org.yarr.merlionapi2.model.CatalogNode;
 import org.yarr.merlionapi2.service.CatalogService;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.Collection;
 import java.util.Map;
 
 @Path("/catalog")
@@ -25,9 +25,7 @@ public class CatalogRest
 
     @GET
     @Path("/")
-    public Map<String, CatalogNode> all() {
-        return catalogService.get().nodes();
+    public Collection<CatalogNode> all() {
+        return catalogService.get().nodes().values();
     }
-
-
 }

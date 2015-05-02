@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap;
 import org.slf4j.Logger;
@@ -32,8 +33,10 @@ public class RestApplication extends Application
         CatalogRest catalog = SpringContext.ctx().getBean(CatalogRest.class);
         MonitorRest monitor = SpringContext.ctx().getBean(MonitorRest.class);
         CategoryRest category = SpringContext.ctx().getBean(CategoryRest.class);
+        CorsFilter corsFilter = new CorsFilter();
+        corsFilter.getAllowedOrigins().add("*");
         singletons = ImmutableSet.of(
-                track, bind, catalog, monitor, category
+                track, bind, catalog, monitor, category, corsFilter
         );
     }
 
