@@ -8,8 +8,7 @@ import org.yarr.merlionapi2.service.CatalogService;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 @Path("/catalog")
 @Produces(MediaType.APPLICATION_JSON)
@@ -25,7 +24,9 @@ public class CatalogRest
 
     @GET
     @Path("/")
-    public Collection<CatalogNode> all() {
-        return catalogService.get().nodes().values();
+    public List<CatalogNode> all() {
+        List<CatalogNode> list = new ArrayList<>(catalogService.get().nodes().values());
+        Collections.sort(list);
+        return list;
     }
 }

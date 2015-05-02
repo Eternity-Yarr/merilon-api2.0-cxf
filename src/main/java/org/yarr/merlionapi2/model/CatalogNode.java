@@ -3,7 +3,9 @@ package org.yarr.merlionapi2.model;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-public class CatalogNode
+import javax.validation.constraints.NotNull;
+
+public class CatalogNode implements Comparable<CatalogNode>
 {
     private final String parentId;
     private final String name;
@@ -65,5 +67,11 @@ public class CatalogNode
     public int hashCode()
     {
         return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    public int compareTo(@NotNull CatalogNode o)
+    {
+        return this.id().compareTo(o.id());
     }
 }
