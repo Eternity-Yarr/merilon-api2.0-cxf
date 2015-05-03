@@ -31,9 +31,20 @@
                         <td><%= elem.get('id') %></td>
                         <td><%= elem.get('name') %></td>
                         <% if (tracks[elem.get('id')]) { %>
-                        <td> <button type="button" class="btn btn-default dont-track-node" data-id="<%= elem.get('id') %>"><i class="glyphicon glyphicon-star"></i></button> </td>
+                        <td> <button type="button"
+                                     class="btn btn-default dont-track-node"
+                                     data-id="<%= elem.get('id') %>"
+                                     data-parent-id="<%= elem.get('parentId') %>"
+                                     data-name="<%= elem.get('name') %>">
+                            <i class="glyphicon glyphicon-star"></i></button> </td>
                         <% } else { %>
-                        <td> <button type="button" class="btn btn-default track-node" data-id="<%= elem.get('id') %>"><i class="glyphicon glyphicon-star-empty"></i></button>  </td>
+                        <td> <button type="button"
+                                class="btn btn-default track-node"
+                                data-id="<%= elem.get('id') %>"
+                                data-parent-id="<%= elem.get('parentId') %>"
+                                data-name="<%= elem.get('name') %>">
+                            <i class="glyphicon glyphicon-star-empty"></i></button>  </td>
+
                         <% } %>
                         <td></td>
                     </tr>
@@ -58,6 +69,10 @@
             url: '/track'
         });
 
+        var TrackNode = Backbone.Model.extend({
+            urlRoot: '/track'
+        });
+
         var MLCatalogList = Backbone.View.extend({
             el: '.catalog',
             render: function () {
@@ -74,10 +89,32 @@
                 'click .dont-track-node' : 'discardNode'
             },
             trackNode: function(ev) {
-                console.log("Will track " + ev.currentTarget.dataset.id);
+                var track = new TrackNode();
+                var el = $(ev.currentTarget);
+                el.attr('disabled', 'disabled');
+                var data = ev.currentTarget.dataset;
+                console.log("Will track " + data.id);
+                track.set({id : data.id, parentId: data.parentId, name: data.name });
+                track.save({id: data.id}, { success: function() {
+                    el.removeClass('track-node').addClass('dont-track-node');
+                    el.find('i').removeClass('glyphicon-star-empty').addClass('glyphicon-star');
+                    el.removeAttr('disabled');
+                    }
+                });
             },
             discardNode: function(ev) {
+                var track = new TrackNode();
+                var el = $(ev.currentTarget);
+                el.attr('disabled', 'disabled');
+                track.set({id: ev.currentTarget.dataset.id});
                 console.log("Will discard tracking of " + ev.currentTarget.dataset.id);
+                track.destroy({success: function() {
+                    el.addClass('track-node').removeClass('dont-track-node');
+                    el.find('i').removeClass('glyphicon-star').addClass('glyphicon-star-empty');
+                    el.removeAttr('disabled');
+                    console.log("Destroyed");
+                    }
+                });
             }
         });
 

@@ -29,7 +29,7 @@ public class TrackRest
     }
 
     @PUT @Path("/{id}")
-    public TrackedNodes add(@PathParam("id") String id, CatalogNode catalogNode) {
+    public CatalogNode add(@PathParam("id") String id, CatalogNode catalogNode) {
         return service.track(new CatalogNode(catalogNode.parentId(), catalogNode.name(), catalogNode.id()));
     }
 

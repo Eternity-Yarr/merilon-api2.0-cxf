@@ -72,10 +72,10 @@ public class TrackService
                 .isPresent();
     }
 
-    public TrackedNodes track(CatalogNode node) {
+    public CatalogNode track(CatalogNode node) {
         trackedNodes.nodes().put(node.id(), node);
         update();
-        return trackedNodes;
+        return node;
     }
 
     public TrackedNodes discard(String id) {
