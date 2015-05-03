@@ -1,25 +1,23 @@
 package org.yarr.merlionapi2.model;
 
-import com.google.common.collect.ImmutableList;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class TrackedNodes
 {
-    private final Set<CatalogNode> trackedNodes = new HashSet<>();
+    private final Map<String, CatalogNode> trackedNodes = new HashMap<>();
 
     @JsonCreator
-    public TrackedNodes(@JsonProperty("nodes") List<CatalogNode> trackedNodes) {
-        this.trackedNodes.addAll(trackedNodes);
+    public TrackedNodes(@JsonProperty("nodes") Map<String, CatalogNode> trackedNodes) {
+        this.trackedNodes.putAll(trackedNodes);
     }
 
     @JsonProperty
-    public List<CatalogNode> nodes() {
-        return ImmutableList.copyOf(trackedNodes);
+    public Map<String, CatalogNode> nodes() {
+        return trackedNodes;
     }
 }

@@ -2,9 +2,11 @@ package org.yarr.merlionapi2.model;
 
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonPropertyOrder;
 
 import javax.validation.constraints.NotNull;
 
+@JsonPropertyOrder({"id", "parentId", "name", "tracked"})
 public class CatalogNode implements Comparable<CatalogNode>
 {
     private final String parentId;

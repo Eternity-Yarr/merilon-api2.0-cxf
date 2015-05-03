@@ -30,6 +30,11 @@
                         <td><%= elem.get('parentId') %></td>
                         <td><%= elem.get('id') %></td>
                         <td><%= elem.get('name') %></td>
+                        <% if (tracks[elem.get('id')]) { %>
+                        <td> <button type="button" class="btn btn-default dont-track-node" data-id="<%= elem.get('id') %>"><i class="glyphicon glyphicon-star"></i></button> </td>
+                        <% } else { %>
+                        <td> <button type="button" class="btn btn-default track-node" data-id="<%= elem.get('id') %>"><i class="glyphicon glyphicon-star-empty"></i></button>  </td>
+                        <% } %>
                         <td></td>
                     </tr>
                 <% }); %>
@@ -49,17 +54,30 @@
             url: '/catalog'
         });
 
+        var Tracks = Backbone.Collection.extend({
+            url: '/track'
+        });
+
         var MLCatalogList = Backbone.View.extend({
             el: '.catalog',
             render: function () {
                 var that = this;
                 var mlCatalog = new MLCatalog();
-                mlCatalog.fetch({
-                  success: function(catalog) {
+                var tracks = new Tracks();
+                $.when(mlCatalog.fetch(), tracks.fetch()).done(function() {
                     var template = _.template($('#mlCatalog-template').html());
-                    that.$el.html(template({mlCatalog: mlCatalog.models}));
-                  }
+                    that.$el.html(template({mlCatalog: mlCatalog.models, tracks: tracks.models[0].attributes}));
                 });
+            },
+            events: {
+                'click .track-node' : 'trackNode',
+                'click .dont-track-node' : 'discardNode'
+            },
+            trackNode: function(ev) {
+                console.log("Will track " + ev.currentTarget.dataset.id);
+            },
+            discardNode: function(ev) {
+                console.log("Will discard tracking of " + ev.currentTarget.dataset.id);
             }
         });
 

@@ -45,6 +45,7 @@ public class RefreshBindingsInfoTask implements Runnable
             trackService
                 .all()
                 .nodes()
+                .values()
                 .stream().sequential()
                 .map(category -> new Pair<>(bindService.get(category.id()), category))
                 .forEach(

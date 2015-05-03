@@ -29,16 +29,18 @@ public class CatalogService
             .expireAfterWrite(12, TimeUnit.HOURS)
             .build();
     private final MLPortProvider portProvider;
+    private final TrackService trackService;
 
     @Autowired
-    public CatalogService(MLPortProvider portProvider) {
+    public CatalogService(MLPortProvider portProvider, TrackService trackService) {
+        this.trackService = trackService;
         this.portProvider = portProvider;
     }
 
     public Catalog get() {
         try
         {
-            return catalogCache.get(Catalog.class, new CatalogRetriever(portProvider));
+            return catalogCache.get(Catalog.class, new CatalogRetriever(portProvider, trackService));
         } catch (ExecutionException e) {
             log.error("Got exception during requesting catalog", e);
             return new Catalog(new HashMap<>());
@@ -49,8 +51,10 @@ public class CatalogService
     {
         private final RateLimiter getCatalogLimiter = RateLimiter.create(1.0);
         private final MLPortProvider portProvider;
+        private final TrackService trackService;
 
-        public CatalogRetriever(MLPortProvider portProvider) {
+        public CatalogRetriever(MLPortProvider portProvider, TrackService trackService) {
+            this.trackService = trackService;
             this.portProvider = portProvider;
         }
 
