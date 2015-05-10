@@ -1,6 +1,7 @@
 package org.yarr.merlionapi2.rest;
 
 import com.google.common.base.Preconditions;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yarr.merlionapi2.model.Bond;
 import org.yarr.merlionapi2.model.CatalogNode;
@@ -20,6 +21,7 @@ public class StageRest
     private final CategoryService categoryService;
     private final TrackService trackService;
 
+    @Autowired
     public StageRest(BindService bindService, CategoryService categoryService, TrackService trackService) {
         this.bindService = bindService;
         this.categoryService = categoryService;
