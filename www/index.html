@@ -207,6 +207,10 @@
             urlRoot: '/track'
         });
 
+        var BondNode = Backbone.Model.extend({
+            urlRoot: '/bind'
+        });
+
         var Items = Backbone.Model.extend({
             urlRoot: '/mlcatalogItems'
         });
@@ -302,6 +306,18 @@
                 var item = new Items({id : cid});
                 item.fetch({ success: function(data) {
                         that.$el.html(that.template({items: data.values()}));
+                    }
+                });
+            },
+            events : {
+                'click .do-stage' : 'doStage'
+            },
+            doStage: function(ev) {
+                var bond = new BondNode();
+                var el  = $(ev.currentTarget);
+                el.parent().parent().addClass("warning");
+                bond.save({id: ev.currentTarget.dataset.id}, {success: function(b) {
+                        el.parent().parent().remove();
                     }
                 });
             }

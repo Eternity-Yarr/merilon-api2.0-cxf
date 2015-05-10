@@ -22,7 +22,10 @@ public class StageRest
     private final TrackService trackService;
 
     @Autowired
-    public StageRest(BindService bindService, CategoryService categoryService, TrackService trackService) {
+    public StageRest(
+            BindService bindService,
+            CategoryService categoryService,
+            TrackService trackService) {
         this.bindService = bindService;
         this.categoryService = categoryService;
         this.trackService = trackService;
@@ -30,8 +33,8 @@ public class StageRest
 
     @PUT
     @Path("/{merlionId}")
-    public Bond stage(@PathParam("merlionId") String merlionId) {
-        Preconditions.checkArgument(merlionId != null && merlionId.isEmpty(), "merlionId must be supplied");
+    public Bond stage(@PathParam("merlionId") String merlionId, Bond bond) {
+        Preconditions.checkArgument(merlionId != null && !merlionId.isEmpty(), "merlionId must be supplied");
         for(CatalogNode cn : trackService.all().nodes().values()) {
             if (categoryService.category(cn).items().get(merlionId) != null) {
                 return bindService.stage(cn.id(), merlionId);
@@ -41,10 +44,10 @@ public class StageRest
         throw new IllegalArgumentException("No such item in tracked catalogs found");
     }
 
-    @PUT
+ /*   @PUT
     @Path("/{merlionId}")
     public Bond bind(@PathParam("merlionId") String merlionId, @QueryParam("id") String id) {
-        Preconditions.checkArgument(merlionId != null && merlionId.isEmpty(), "merlionId must be supplied");
+        Preconditions.checkArgument(merlionId != null && !merlionId.isEmpty(), "merlionId must be supplied");
         Preconditions.checkArgument(id != null && id.isEmpty(), "id must be supplied");
         //TODO: check that id is exists in our db
         for(CatalogNode cn : trackService.all().nodes().values()) {
@@ -54,5 +57,5 @@ public class StageRest
         }
 
         throw new IllegalArgumentException("No such item in tracked catalogs found");
-    }
+    }*/
 }

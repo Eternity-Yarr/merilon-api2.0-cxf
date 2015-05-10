@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yarr.merlionapi2.model.*;
+import org.yarr.merlionapi2.service.BindService;
 import org.yarr.merlionapi2.service.CatalogService;
 import org.yarr.merlionapi2.service.CategoryService;
 import org.yarr.merlionapi2.service.TrackService;
@@ -25,15 +26,18 @@ public class CatalogItemsRest
     private final CategoryService categoryService;
     private final CatalogService catalogService;
     private final TrackService trackService;
+    private final BindService bindService;
 
     @Autowired
     public CatalogItemsRest(
             CategoryService categoryService,
             CatalogService catalogService,
-            TrackService trackService) {
+            TrackService trackService,
+            BindService bindService) {
         this.categoryService = categoryService;
         this.catalogService = catalogService;
         this.trackService = trackService;
+        this.bindService = bindService;
     }
 
     @GET
@@ -57,6 +61,7 @@ public class CatalogItemsRest
         Stock stock = categoryService.stock(catalogService.get().nodes().get(catId));
         return cat.items().values().parallelStream()
                 .map(i -> new StockAndItem(i.id(), i, stock.item(i.id())))
+                .filter(i -> bindService.searchByMerlionId(i.id()) == null)
                 .collect(Collectors.toList());
     }
 
