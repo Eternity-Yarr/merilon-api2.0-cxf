@@ -32,12 +32,11 @@ public class RestApplication extends Application
         BindRest bind = SpringContext.ctx().getBean(BindRest.class);
         CatalogRest catalog = SpringContext.ctx().getBean(CatalogRest.class);
         MonitorRest monitor = SpringContext.ctx().getBean(MonitorRest.class);
-        CategoryRest category = SpringContext.ctx().getBean(CategoryRest.class);
         CatalogItemsRest catalogItemsRest = SpringContext.ctx().getBean(CatalogItemsRest.class);
         CorsFilter corsFilter = new CorsFilter();
         corsFilter.getAllowedOrigins().add("*");
         singletons = ImmutableSet.of(
-                track, bind, catalog, monitor, category, corsFilter, catalogItemsRest);
+                track, bind, catalog, monitor, corsFilter, catalogItemsRest);
     }
 
     public static void startUp()
