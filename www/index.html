@@ -9,49 +9,171 @@
     <div class="container">
         <h1>Home</h1>
         <hr/>
-        <div class="catalog">
+        <div class="row">
+            <div class="menu col-md-3">
+                <ul class="list-unstyled">
+                <li><h4>Merlion</h4>
+                    <ul>
+                        <li><a href="/#mlcatalogs" class="btn btn-default">Все</a></li>
+                        <li><a href="/#mlcatalogsFiltered" class="btn btn-default">Отслеживаемые</a></li>
+                    </ul>
+                </li>
+                <li><h4>Shop</h4>
+                    <ul>
+                        <li><a href="/#tracking" class="btn btn-default">Категории</a></li>
+                    </ul>
+                </li>
+                </ul>
+            </div>
+            <div class="content col-md-9">
 
+            </div>
         </div>
     </div>
-
-    <script type="text/template" id="mlCatalog-template">
+    <script type="text/x-underscore" id="mlCatalogs-template">
         <table class="table stripped">
             <thead>
-                <tr>
-                    <th>Parent</th>
-                    <th>Id</th>
-                    <th>name</th>
-                    <th></th>
-                </tr>
+            <tr>
+                <th>Parent</th>
+                <th>Id</th>
+                <th>name</th>
+                <th></th>
+                <th></th>
+            </tr>
             </thead>
             <tbody>
-                <% _.each(mlCatalog, function(elem) { %>
-                    <tr>
-                        <td><%= elem.get('parentId') %></td>
-                        <td><%= elem.get('id') %></td>
-                        <td><%= elem.get('name') %></td>
-                        <% if (tracks[elem.get('id')]) { %>
-                        <td> <button type="button"
-                                     class="btn btn-default dont-track-node"
-                                     data-id="<%= elem.get('id') %>"
-                                     data-parent-id="<%= elem.get('parentId') %>"
-                                     data-name="<%= elem.get('name') %>">
-                            <i class="glyphicon glyphicon-star"></i></button> </td>
-                        <% } else { %>
-                        <td> <button type="button"
-                                class="btn btn-default track-node"
-                                data-id="<%= elem.get('id') %>"
-                                data-parent-id="<%= elem.get('parentId') %>"
-                                data-name="<%= elem.get('name') %>">
-                            <i class="glyphicon glyphicon-star-empty"></i></button>  </td>
+            <% _.each(mlCatalogs, function(elem) { %>
+            <tr>
+                <td><%= elem.get('parentId') %></td>
+                <td><%= elem.get('id') %></td>
+                <td><%= elem.get('name') %></td>
+                <% if (tracks[elem.get('id')]) { %>
+                <td> <button type="button"
+                             class="btn btn-default dont-track-node"
+                             data-id="<%= elem.get('id') %>"
+                             data-parent-id="<%= elem.get('parentId') %>"
+                             data-name="<%= elem.get('name') %>">
+                    <i class="glyphicon glyphicon-star"></i></button> </td>
+                <% } else { %>
+                <td> <button type="button"
+                             class="btn btn-default track-node"
+                             data-id="<%= elem.get('id') %>"
+                             data-parent-id="<%= elem.get('parentId') %>"
+                             data-name="<%= elem.get('name') %>">
+                    <i class="glyphicon glyphicon-star-empty"></i></button>  </td>
 
-                        <% } %>
-                        <td></td>
-                    </tr>
-                <% }); %>
+                <% } %>
+                <td>
+                    <button type="button" class="go-to-items btn btn-default" data-id="<%= elem.get('id') %>">
+                        <i class="glyphicon glyphicon-th-list"></i>
+                    </button>
+                </td>
+            </tr>
+            <% }); %>
             </tbody>
         </table>
     </script>
+
+    <script type="text/x-underscore" id="mlCatalogsFiltered-template">
+        <table class="table stripped">
+            <thead>
+            <tr>
+                <th>Parent</th>
+                <th>Id</th>
+                <th>name</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <% _.each(mlCatalogs, function(elem) { %>
+            <tr>
+                <td><%= elem.get('parentId') %></td>
+                <td><%= elem.get('id') %></td>
+                <td><%= elem.get('name') %></td>
+                <td>
+                    <button type="button" class="go-to-items btn btn-default" data-id="<%= elem.get('id') %>">
+                        <i class="glyphicon glyphicon-th-list"></i>
+                    </button>
+                </td>
+
+            </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    </script>
+
+    <script type="text/x-underscore" id="itemsList-template">
+        <table class="table stripped">
+            <thead>
+            <tr>
+                <th>Код</th>
+                <th>Артикул</th>
+                <th>Бренд</th>
+                <th>Наименование</th>
+                <th>Цена</th>
+                <th>Наличие</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% _.each(items, function(elem) { %>
+            <% if(elem.item) { %>
+            <tr>
+                <td><%= elem.item['id'] %></td>
+                <td><%= elem.item['vendorCode'] %></td>
+                <td><%= elem.item['brand'] %></td>
+                <td><%= elem.item['name'] %></td>
+                <% if (elem.stock) { %>
+                <td><%= elem.stock['price'] %></td>
+                <td><%= elem.stock['available'] %></td>
+                <% } else { %>
+                <td class="text-center" colspan="2">----</td>
+                <% } %>
+            </tr>
+            <% } %>
+            <% }); %>
+            </tbody>
+        </table>
+    </script>
+
+    <script type="text/x-underscore" id="trackings-template">
+        <table class="table stripped">
+            <thead>
+            <tr>
+                <th>Parent</th>
+                <th>Id</th>
+                <th>name</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <% _.each(mlCatalogs, function(elem) { %>
+            <tr>
+                <td><%= elem.get('parentId') %></td>
+                <td><%= elem.get('id') %></td>
+                <td><%= elem.get('name') %></td>
+                <% if (tracks[elem.get('id')]) { %>
+                <td> <button type="button"
+                             class="btn btn-default dont-track-node"
+                             data-id="<%= elem.get('id') %>"
+                             data-parent-id="<%= elem.get('parentId') %>"
+                             data-name="<%= elem.get('name') %>">
+                    <i class="glyphicon glyphicon-star"></i></button> </td>
+                <% } else { %>
+                <td> <button type="button"
+                             class="btn btn-default track-node"
+                             data-id="<%= elem.get('id') %>"
+                             data-parent-id="<%= elem.get('parentId') %>"
+                             data-name="<%= elem.get('name') %>">
+                    <i class="glyphicon glyphicon-star-empty"></i></button>  </td>
+
+                <% } %>
+                <td></td>
+            </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    </script>
+
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
@@ -61,8 +183,8 @@
             options.url = 'http://127.0.0.1:8080' + options.url;
         });
 
-        var MLCatalog = Backbone.Collection.extend({
-            url: '/catalog'
+        var MLCatalogs = Backbone.Collection.extend({
+            url: '/mlcatalogs'
         });
 
         var Tracks = Backbone.Collection.extend({
@@ -73,20 +195,25 @@
             urlRoot: '/track'
         });
 
+        var Items = Backbone.Model.extend({
+            urlRoot: '/mlcatalogItems'
+        });
+
         var MLCatalogList = Backbone.View.extend({
-            el: '.catalog',
+            el: '.content',
             render: function () {
                 var that = this;
-                var mlCatalog = new MLCatalog();
+                var mlCatalogs = new MLCatalogs();
                 var tracks = new Tracks();
-                $.when(mlCatalog.fetch(), tracks.fetch()).done(function() {
-                    var template = _.template($('#mlCatalog-template').html());
-                    that.$el.html(template({mlCatalog: mlCatalog.models, tracks: tracks.models[0].attributes}));
+                $.when(mlCatalogs.fetch(), tracks.fetch()).done(function() {
+                    var template = _.template($('#mlCatalogs-template').html());
+                    that.$el.html(template({mlCatalogs: mlCatalogs.models, tracks: tracks.models[0].attributes}));
                 });
             },
             events: {
                 'click .track-node' : 'trackNode',
-                'click .dont-track-node' : 'discardNode'
+                'click .dont-track-node' : 'discardNodeTrack',
+                'click .go-to-items' : 'gotoItems'
             },
             trackNode: function(ev) {
                 var track = new TrackNode();
@@ -102,12 +229,13 @@
                     }
                 });
             },
-            discardNode: function(ev) {
+            discardNodeTrack: function(ev) {
                 var track = new TrackNode();
                 var el = $(ev.currentTarget);
+                var data = ev.currentTarget.dataset;
                 el.attr('disabled', 'disabled');
-                track.set({id: ev.currentTarget.dataset.id});
-                console.log("Will discard tracking of " + ev.currentTarget.dataset.id);
+                track.set({id: data.id});
+                console.log("Will discard tracking of " + data.id);
                 track.destroy({success: function() {
                     el.addClass('track-node').removeClass('dont-track-node');
                     el.find('i').removeClass('glyphicon-star').addClass('glyphicon-star-empty');
@@ -115,22 +243,89 @@
                     console.log("Destroyed");
                     }
                 });
+            },
+            gotoItems: function(ev) {
+                router.navigate('items/'+ev.currentTarget.dataset.id, {trigger: true});
+            }
+        });
+
+        var MLCatalogFilteredList = Backbone.View.extend({
+            el: '.content',
+            render: function () {
+                var that = this;
+                var mlCatalogs = new MLCatalogs();
+                $.when(mlCatalogs.fetch({ data: $.param({filtered: true})})).done(function() {
+                    var template = _.template($('#mlCatalogsFiltered-template').html());
+                    that.$el.html(template({mlCatalogs: mlCatalogs.models}));
+                });
+            },
+            events: {
+                'click .go-to-items' : 'gotoItems'
+            },
+            gotoItems: function(ev) {
+                router.navigate('items/'+ev.currentTarget.dataset.id, {trigger: true});
+            }
+        });
+
+        var TrackingList = Backbone.View.extend({
+            el: '.content',
+            render: function () {
+                var that = this;
+                var mlCatalogs = new MLCatalogs();
+                var tracks = new Tracks();
+                $.when(mlCatalogs.fetch(), tracks.fetch()).done(function() {
+                    var template = _.template($('#trackings-template').html());
+                    that.$el.html(template({mlCatalogs: mlCatalogs.models, tracks: tracks.models[0].attributes}));
+                });
+            }
+        });
+
+        var ItemsList = Backbone.View.extend({
+            el: '.content',
+            render: function(cid) {
+                var that = this;
+                console.log('ItemsList rendering');
+                console.log('cid is ' + cid);
+                var item = new Items({id : cid});
+                item.fetch({ success: function(data) {
+                        var template = _.template($('#itemsList-template').html());
+                        that.$el.html(template({items: data.values()}));
+                    }
+                });
             }
         });
 
         var Router = Backbone.Router.extend({
             routes: {
-            '': 'main'
+                'mlcatalogs'         : 'mlcatalogs',
+                'mlcatalogsFiltered' : 'mlcatalogsFiltered',
+                'items/:cid'              : 'items',
+                'tracking'           : 'tracking'
+            },
+            mlcatalogs: function() {
+                console.log('mlcatalog loaded');
+                mlCatalogList.render();
+            },
+            mlcatalogsFiltered: function() {
+                console.log('filtered catalogs loaded');
+                mlCatalogFilteredList.render();
+            },
+            items: function(cid) {
+                console.log('items loaded');
+                itemsList.render(cid);
+            },
+            tracking: function() {
+                console.log('catalog loaded');
+                trackingList.render();
             }
         });
 
         var mlCatalogList = new MLCatalogList();
+        var mlCatalogFilteredList = new MLCatalogFilteredList();
+        var trackingList = new TrackingList();
+        var itemsList = new ItemsList();
 
         var router = new Router();
-        router.on('route:main', function() {
-            console.log("home loaded");
-            mlCatalogList.render();
-        });
 
         Backbone.history.start();
     </script>

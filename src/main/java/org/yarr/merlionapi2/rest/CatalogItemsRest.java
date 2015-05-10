@@ -1,61 +1,63 @@
 package org.yarr.merlionapi2.rest;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yarr.merlionapi2.model.*;
 import org.yarr.merlionapi2.service.CatalogService;
 import org.yarr.merlionapi2.service.CategoryService;
+import org.yarr.merlionapi2.service.TrackService;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-@Path("/remove/mlcatalogs")
+@Path("/mlcatalogItems")
 @Produces(MediaType.APPLICATION_JSON)
 @Component
-public class CategoryRest
+public class CatalogItemsRest
 {
     private final CategoryService categoryService;
     private final CatalogService catalogService;
+    private final TrackService trackService;
 
     @Autowired
-    public CategoryRest(CategoryService categoryService, CatalogService catalogService) {
+    public CatalogItemsRest(
+            CategoryService categoryService,
+            CatalogService catalogService,
+            TrackService trackService) {
         this.categoryService = categoryService;
         this.catalogService = catalogService;
+        this.trackService = trackService;
     }
 
-    @GET @Path("/")
-    public Map<String, Integer> all() {
-        return ImmutableMap.of(
-                "Category entries", categoryService.caches().getKey().asMap().keySet().size(),
-                "Stock entries", categoryService.caches().getValue().asMap().keySet().size()
-        );
-    }
-
-    @GET @Path("/info/{catId}")
-    public List<Item> items(@PathParam("catId") String catId) {
-        return categoryService.category(catalogService.get().nodes().get(catId)).all();
-    }
-
-    @GET @Path("/stock/{catId}")
-    public List<StockItem> stock(@PathParam("catId") String catId) {
-        return categoryService.stock(catalogService.get().nodes().get(catId)).all();
-    }
-
-    @GET @Path("/both/{catId}")
+    @GET
+    @Path("/{catId}")
     public List<StockAndItem> consolidated(@PathParam("catId") String catId) {
+        Preconditions.checkArgument(!catId.isEmpty(), "Category id shouldn't be empty");
+        return getItems(catId);
+    }
+
+    @GET
+    @Path("/")
+    public List<StockAndItem> all() {
+        List<StockAndItem> items = new ArrayList<>();
+        for(CatalogNode cn  : trackService.all().nodes().values())
+            items.addAll(getItems(cn.id()));
+        return items;
+    }
+
+    private List<StockAndItem> getItems(String catId) {
         Category cat = categoryService.category(catalogService.get().nodes().get(catId));
         Stock stock = categoryService.stock(catalogService.get().nodes().get(catId));
         return cat.items().values().parallelStream()
                 .map(i -> new StockAndItem(i.id(), i, stock.item(i.id())))
-                .collect(
-                        Collectors.toList()
-                );
+                .collect(Collectors.toList());
     }
+
 }
