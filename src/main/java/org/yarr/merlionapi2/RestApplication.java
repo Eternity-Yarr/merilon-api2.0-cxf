@@ -25,9 +25,7 @@ public class RestApplication extends Application
 
     private final Set<Object> singletons;
 
-    public RestApplication(
-
-    ) {
+    public RestApplication() {
         TrackRest track = SpringContext.ctx().getBean(TrackRest.class);
         BindRest bind = SpringContext.ctx().getBean(BindRest.class);
         CatalogRest catalog = SpringContext.ctx().getBean(CatalogRest.class);

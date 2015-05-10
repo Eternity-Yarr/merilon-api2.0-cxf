@@ -112,6 +112,8 @@
                 <th>Наименование</th>
                 <th>Цена</th>
                 <th>Наличие</th>
+                <th></th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
@@ -128,6 +130,16 @@
                 <% } else { %>
                 <td class="text-center" colspan="2">----</td>
                 <% } %>
+                <td>
+                    <button data-id="<%= elem.item['id'] %>" type="button" class="do-stage btn btn-default">
+                        <i class="glyphicon glyphicon-time"></i>
+                    </button>
+                </td>
+                <td>
+                    <button data-id="<%= elem.item['id'] %>" type="button" class="do-bind btn btn-default">
+                        <i class="glyphicon glyphicon-link"></i>
+                    </button>
+                </td>
             </tr>
             <% } %>
             <% }); %>
@@ -201,13 +213,13 @@
 
         var MLCatalogList = Backbone.View.extend({
             el: '.content',
+            template: _.template($('#mlCatalogs-template').html()),
             render: function () {
                 var that = this;
                 var mlCatalogs = new MLCatalogs();
                 var tracks = new Tracks();
                 $.when(mlCatalogs.fetch(), tracks.fetch()).done(function() {
-                    var template = _.template($('#mlCatalogs-template').html());
-                    that.$el.html(template({mlCatalogs: mlCatalogs.models, tracks: tracks.models[0].attributes}));
+                    that.$el.html(that.template({mlCatalogs: mlCatalogs.models, tracks: tracks.models[0].attributes}));
                 });
             },
             events: {
@@ -251,12 +263,12 @@
 
         var MLCatalogFilteredList = Backbone.View.extend({
             el: '.content',
+            template: _.template($('#mlCatalogsFiltered-template').html()),
             render: function () {
                 var that = this;
                 var mlCatalogs = new MLCatalogs();
                 $.when(mlCatalogs.fetch({ data: $.param({filtered: true})})).done(function() {
-                    var template = _.template($('#mlCatalogsFiltered-template').html());
-                    that.$el.html(template({mlCatalogs: mlCatalogs.models}));
+                    that.$el.html(that.template({mlCatalogs: mlCatalogs.models}));
                 });
             },
             events: {
@@ -269,27 +281,27 @@
 
         var TrackingList = Backbone.View.extend({
             el: '.content',
+            template: _.template($('#trackings-template').html()),
             render: function () {
                 var that = this;
                 var mlCatalogs = new MLCatalogs();
                 var tracks = new Tracks();
                 $.when(mlCatalogs.fetch(), tracks.fetch()).done(function() {
-                    var template = _.template($('#trackings-template').html());
-                    that.$el.html(template({mlCatalogs: mlCatalogs.models, tracks: tracks.models[0].attributes}));
+                    that.$el.html(that.template({mlCatalogs: mlCatalogs.models, tracks: tracks.models[0].attributes}));
                 });
             }
         });
 
         var ItemsList = Backbone.View.extend({
             el: '.content',
+            template: _.template($('#itemsList-template').html()),
             render: function(cid) {
                 var that = this;
                 console.log('ItemsList rendering');
                 console.log('cid is ' + cid);
                 var item = new Items({id : cid});
                 item.fetch({ success: function(data) {
-                        var template = _.template($('#itemsList-template').html());
-                        that.$el.html(template({items: data.values()}));
+                        that.$el.html(that.template({items: data.values()}));
                     }
                 });
             }

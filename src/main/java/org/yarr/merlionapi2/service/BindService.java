@@ -4,7 +4,6 @@ import org.apache.commons.io.FileUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.yarr.merlionapi2.model.Bindings;
 import org.yarr.merlionapi2.model.Bond;
@@ -29,7 +28,7 @@ public class BindService
         return get();
     }
 
-    private Bindings get() {
+    private synchronized Bindings get() {
         try
         {
             Bindings bindings = mapper.readValue(new File(STORAGE), Bindings.class);
@@ -50,7 +49,7 @@ public class BindService
         return get().bonds().get(catalogId);
     }
 
-    private Bindings set(Map<String, List<Bond>> nodes) {
+    private synchronized Bindings set(Map<String, List<Bond>> nodes) {
         try
         {
             Bindings newBindings = new Bindings(nodes);
@@ -71,7 +70,7 @@ public class BindService
         return bindings;
     }
 
-    public Bindings bind(String catalogId, Bond bond)
+    public Bond bind(String catalogId, Bond bond)
     {
         Map<String, List<Bond>> newBindings = new HashMap<>(bindings.bonds());
         List<Bond> bonds;
@@ -83,10 +82,11 @@ public class BindService
             bonds = newBindings.get(catalogId);
 
         bonds.add(bond);
-        return set(newBindings);
+        set(newBindings);
+        return bond;
     }
 
-    public Bindings stage(String catalogId, String merlionId)
+    public Bond stage(String catalogId, String merlionId)
     {
         Bond bond = new Bond(merlionId, catalogId, "-1");
         return bind(catalogId, bond);
