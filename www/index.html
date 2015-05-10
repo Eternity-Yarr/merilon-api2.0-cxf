@@ -222,6 +222,18 @@
         </table>
     </script>
 
+    <script type="text/x-underscore" id="bind-template">
+        <h4><%= item.get('vendorCode') %></h4>
+        <p><strong><%= item.get('brand') %></strong> <%= item.get('name') %></p>
+        <form class="bind-form form-inline">
+            <div class="form-group">
+                <label for="id">Код товара</label>
+                <input type="text" class="form-control" id="id" placeholder="9000">
+            </div>
+            <button type="submit" class="btn btn-default">Вязать</button>
+        </form>
+    </script>
+
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
@@ -253,6 +265,11 @@
         var Items = Backbone.Model.extend({
             urlRoot: '/mlcatalogItems'
         });
+
+        var Item = Backbone.Model.extend({
+            urlRoot: '/item'
+        });
+
 
         var MLCatalogList = Backbone.View.extend({
             el: '.content',
@@ -362,6 +379,31 @@
             }
         });
 
+        var BindProcess = Backbone.View.extend({
+            el: '.content',
+            template: _.template($('#bind-template').html()),
+            render: function(merlionId) {
+                var that = this;
+                var item = new Item({id: merlionId});
+                item.fetch({success: function(i) {
+                        console.log(i);
+                        that.$el.html(that.template({item: i}));
+                    }
+                });
+                console.log('Bind process renders');
+            },
+            events: {
+                'keyup .bind-form' : 'searchCode',
+                'change .bind-form' : 'searchCode'
+            },
+            searchCode: function(ev) {
+                var value = $(ev.currentTarget).find('#id').val();
+                if ( value && value.length > 5 ) {
+                    console.log("triggered");
+                }
+            }
+        });
+
         var StagingList = Backbone.View.extend({
             el: '.content',
             template: _.template($('#staging-template').html()),
@@ -401,7 +443,8 @@
                 'mlcatalogsFiltered' : 'mlcatalogsFiltered',
                 'items/:cid'         : 'items',
                 'tracking'           : 'tracking',
-                'staging'            : 'staging'
+                'staging'            : 'staging',
+                'bind/:mid'          : 'bind'
             },
             mlcatalogs: function() {
                 console.log('mlcatalog loaded');
@@ -422,6 +465,10 @@
             staging: function() {
                 console.log('staging loaded');
                 stagingList.render();
+            },
+            bind: function(mid) {
+                console.log('binding loaded');
+                bindProcess.render(mid);
             }
         });
 
@@ -430,6 +477,7 @@
         var trackingList = new TrackingList();
         var stagingList = new StagingList();
         var itemsList = new ItemsList();
+        var bindProcess = new BindProcess();
 
         var router = new Router();
 

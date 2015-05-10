@@ -27,7 +27,7 @@ public class RestApplication extends Application
 
     public RestApplication() {
         TrackRest track = SpringContext.ctx().getBean(TrackRest.class);
-        BindRest bind = SpringContext.ctx().getBean(BindRest.class);
+        ItemRest item = SpringContext.ctx().getBean(ItemRest.class);
         CatalogRest catalog = SpringContext.ctx().getBean(CatalogRest.class);
         MonitorRest monitor = SpringContext.ctx().getBean(MonitorRest.class);
         CatalogItemsRest catalogItemsRest = SpringContext.ctx().getBean(CatalogItemsRest.class);
@@ -35,7 +35,7 @@ public class RestApplication extends Application
         CorsFilter corsFilter = new CorsFilter();
         corsFilter.getAllowedOrigins().add("*");
         singletons = ImmutableSet.of(
-                track, bind, catalog, monitor, corsFilter, catalogItemsRest, stageRest);
+                track, item, catalog, monitor, corsFilter, catalogItemsRest, stageRest);
     }
 
     public static void startUp()
