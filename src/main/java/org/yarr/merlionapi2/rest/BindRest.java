@@ -43,7 +43,7 @@ public class BindRest
 
 
     @PUT @Path("/create")
-    public Bindings bind(@QueryParam("catId") String catalogId, @QueryParam("merlId") String merlionId, @QueryParam("id") String id){
+    public Bond bind(@QueryParam("catId") String catalogId, @QueryParam("merlId") String merlionId, @QueryParam("id") String id){
         Preconditions.checkNotNull(catalogId, "catId parameter is required");
         Preconditions.checkNotNull(merlionId, "merlId parameter is required");
         Preconditions.checkNotNull(id, "id parameter is required");
@@ -54,7 +54,7 @@ public class BindRest
     }
 
     @PUT @Path("/")
-    public Bindings stage(@QueryParam("catId") String catalogId, @QueryParam("merlId") String merlionId) {
+    public Bond stage(@QueryParam("catId") String catalogId, @QueryParam("merlId") String merlionId) {
         Preconditions.checkNotNull(catalogId, "catId parameter is required");
         Preconditions.checkNotNull(merlionId, "merlId parameter is required");
         Preconditions.checkState(!catalogId.isEmpty(), "catId parameter shouldn't be empty");
