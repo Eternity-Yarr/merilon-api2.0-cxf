@@ -92,6 +92,14 @@ public class BindService
         return bind(catalogId, bond);
     }
 
+    public List<Bond> staging() {
+        List<Bond> bonds = new ArrayList<>();
+        get().bonds().values().forEach(
+                bs -> bs.stream().filter(b -> b.id().equals("-1")).forEach(bonds::add)
+        );
+        return bonds;
+    }
+
     public Bindings unbindByMerlId(String merlionId)
     {
         Map<String, List<Bond>> bonds = new HashMap<>();

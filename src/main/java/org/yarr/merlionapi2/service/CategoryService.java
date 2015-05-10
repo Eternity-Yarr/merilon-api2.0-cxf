@@ -1,5 +1,6 @@
 package org.yarr.merlionapi2.service;
 
+import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.RateLimiter;
@@ -44,12 +45,17 @@ public class CategoryService
         this.portProvider = portProvider;
     }
 
+
     public Category category(CatalogNode catalog) {
+        return category(catalog.id());
+    }
+    public Category category(String catId) {
+        Preconditions.checkNotNull(catId, "Shouldn't be null");
         try
         {
-            return categoryCache.get(catalog.id(), new ItemsRetriever(catalog.id(), portProvider));
+            return categoryCache.get(catId, new ItemsRetriever(catId, portProvider));
         } catch (ExecutionException e) {
-            log.error("Got exception while retrieving list of items of category {}", catalog);
+            log.error("Got exception while retrieving list of items of category {}", catId);
             return new Category(new HashMap<>());
         }
     }

@@ -21,6 +21,7 @@
                 <li><h4>Shop</h4>
                     <ul>
                         <li><a href="/#tracking" class="btn btn-default">Категории</a></li>
+                        <li><a href="/#staging" class="btn btn-default">Очередь</a></li>
                     </ul>
                 </li>
                 </ul>
@@ -186,6 +187,40 @@
         </table>
     </script>
 
+    <script type="text/x-underscore" id="staging-template">
+        <table class="table stripped">
+            <thead>
+            <tr>
+                <th>Код</th>
+                <th>Артикул</th>
+                <th>Бренд</th>
+                <th>Наименование</th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <% _.each(items, function(elem) { %>
+            <tr>
+                <td><%= elem.get('id') %></td>
+                <td><%= elem.get('vendorCode') %></td>
+                <td><%= elem.get('brand') %></td>
+                <td><%= elem.get('name') %></td>
+                <td>
+                    <button data-id="<%= elem.get('id') %>" type="button" class="do-bind btn btn-default">
+                        <i class="glyphicon glyphicon-link"></i>
+                    </button>
+                </td>
+                <td>
+                    <button data-id="<%= elem.get('id') %>" type="button" class="do-unstage btn btn-default">
+                        <i class="glyphicon glyphicon-remove"></i>
+                    </button>
+                </td>
+            </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    </script>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
@@ -203,12 +238,16 @@
             url: '/track'
         });
 
+        var StagingNodes = Backbone.Collection.extend({
+            url: '/stage'
+        });
+
         var TrackNode = Backbone.Model.extend({
             urlRoot: '/track'
         });
 
         var BondNode = Backbone.Model.extend({
-            urlRoot: '/bind'
+            urlRoot: '/stage'
         });
 
         var Items = Backbone.Model.extend({
@@ -323,12 +362,46 @@
             }
         });
 
+        var StagingList = Backbone.View.extend({
+            el: '.content',
+            template: _.template($('#staging-template').html()),
+            render: function() {
+                var that = this;
+                var stagingNodes = new StagingNodes();
+                $.when(stagingNodes.fetch()).done(
+                    function() {
+                        that.$el.html(that.template({items: stagingNodes.models}));
+                    }
+                );
+                console.log("Rendering staging list");
+            },
+            events: {
+                'click .do-bind': 'bind',
+                'click .do-unstage': 'unstage'
+            },
+            bind: function(ev) {
+                console.log('Binding ' + ev.currentTarget);
+            },
+            unstage: function(ev) {
+                console.log('Unstaging ' + ev.currentTarget.dataset.id);
+                var bond = new BondNode({ id : ev.currentTarget.dataset.id});
+                var el  = $(ev.currentTarget);
+                el.parent().parent().addClass("warning");
+                bond.destroy({
+                    success: function() {
+                        el.parent().parent().remove();
+                    }
+                });
+            }
+        });
+
         var Router = Backbone.Router.extend({
             routes: {
                 'mlcatalogs'         : 'mlcatalogs',
                 'mlcatalogsFiltered' : 'mlcatalogsFiltered',
-                'items/:cid'              : 'items',
-                'tracking'           : 'tracking'
+                'items/:cid'         : 'items',
+                'tracking'           : 'tracking',
+                'staging'            : 'staging'
             },
             mlcatalogs: function() {
                 console.log('mlcatalog loaded');
@@ -345,12 +418,17 @@
             tracking: function() {
                 console.log('catalog loaded');
                 trackingList.render();
+            },
+            staging: function() {
+                console.log('staging loaded');
+                stagingList.render();
             }
         });
 
         var mlCatalogList = new MLCatalogList();
         var mlCatalogFilteredList = new MLCatalogFilteredList();
         var trackingList = new TrackingList();
+        var stagingList = new StagingList();
         var itemsList = new ItemsList();
 
         var router = new Router();

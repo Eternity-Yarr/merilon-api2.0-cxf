@@ -5,14 +5,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yarr.merlionapi2.model.Bond;
 import org.yarr.merlionapi2.model.CatalogNode;
+import org.yarr.merlionapi2.model.Item;
 import org.yarr.merlionapi2.service.BindService;
 import org.yarr.merlionapi2.service.CategoryService;
 import org.yarr.merlionapi2.service.TrackService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
+import java.util.stream.Collectors;
 
-@Path("/bind")
+@Path("/stage")
 @Produces(MediaType.APPLICATION_JSON)
 @Component
 public class StageRest
@@ -44,6 +47,20 @@ public class StageRest
         throw new IllegalArgumentException("No such item in tracked catalogs found");
     }
 
+    @GET
+    @Path("/")
+    public List<Item> all() {
+        return bindService.staging()
+                .stream()
+                .map(b -> categoryService.category(b.catId()).items().get(b.merlionId()))
+                .collect(Collectors.toList());
+    }
+
+    @DELETE
+    @Path("/{merlionId}")
+    public void unstage(@PathParam("merlionId") String merlionId) {
+        bindService.unbindByMerlId(merlionId);
+    }
  /*   @PUT
     @Path("/{merlionId}")
     public Bond bind(@PathParam("merlionId") String merlionId, @QueryParam("id") String id) {
