@@ -230,6 +230,8 @@
                 <label for="id">Код товара</label>
                 <input type="text" class="form-control" id="id" placeholder="9000">
             </div>
+            <button type="submit" class="do-search btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+            <button type="button" class="do-clear btn btn-default"><i class="glyphicon glyphicon-grain"></i></button>
         </form>
 
         <table id="search-result" class="table table-condensed">
@@ -249,7 +251,7 @@
             <td><%= item['id'] %></td>
             <td><%= item['vendorCode'] %></td>
             <td><%= item['name'] %></td>
-            <td><button data-id="<%= item['id'] %>" type="button" class="btn btn-default"><i class="glyphicon glyphicon-link"></i></td>
+            <td><button data-id="<%= item['id'] %>" type="button" class="do-bind btn btn-default"><i class="glyphicon glyphicon-link"></i></td>
         </tr>
     </script>
 
@@ -416,14 +418,16 @@
                 console.log('Bind process renders');
             },
             events: {
-                'keyup .bind-form' : 'searchCode',
-                'change .bind-form' : 'searchCode'
+//                'change .bind-form' : 'searchCode',
+                'click .do-search' : 'searchCode',
+                'click .do-bind' : 'doBind',
+                'click .do-clear' : 'doClear',
             },
             searchCode: function(ev) {
                 var that = this;
-                var value = $(ev.currentTarget).find('#id').val();
+                var value = $('#id').val();
                 var rowTpl = _.template($('#search-result-template').html());
-                if ( value && value.length >= 4 ) {
+                if ( value && value.length >= 1 ) {
                     var itemPair = new ItemPair({id: value});
                     itemPair.fetch({success:  function(ip) {
                             var fst = "";
@@ -433,10 +437,16 @@
                             if(itemPair.get("value")) {
                                 fst += rowTpl({item: itemPair.get("value")});
                              }
-                            $("#search-result-body").html(fst);
+                            $("#search-result-body").append(fst);
                         }
                     });
                 }
+            },
+            doBind: function(ev) {
+                console.log('binding!');
+            },
+            doClear: function() {
+                $("#search-result-body").children().remove(); // >_<  RIP
             }
         });
 
@@ -454,11 +464,7 @@
                 console.log("Rendering staging list");
             },
             events: {
-                'click .do-bind': 'bind',
                 'click .do-unstage': 'unstage'
-            },
-            bind: function(ev) {
-                console.log('Binding ' + ev.currentTarget);
             },
             unstage: function(ev) {
                 console.log('Unstaging ' + ev.currentTarget.dataset.id);
