@@ -230,8 +230,27 @@
                 <label for="id">Код товара</label>
                 <input type="text" class="form-control" id="id" placeholder="9000">
             </div>
-            <button type="submit" class="btn btn-default">Вязать</button>
         </form>
+
+        <table id="search-result" class="table table-condensed">
+            <thead>
+                <th>bitrix id</th>
+                <th>article</th>
+                <th>name</th>
+                <th></th>
+            </thead>
+            <tbody id="search-result-body">
+            </tbody>
+        </table>
+    </script>
+
+    <script  type="text/x-underscore" id="search-result-template">
+        <tr>
+            <td><%= item['id'] %></td>
+            <td><%= item['vendorCode'] %></td>
+            <td><%= item['name'] %></td>
+            <td><button data-id="<%= item['id'] %>" type="button" class="btn btn-default"><i class="glyphicon glyphicon-link"></i></td>
+        </tr>
     </script>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
@@ -268,6 +287,10 @@
 
         var Item = Backbone.Model.extend({
             urlRoot: '/item'
+        });
+
+        var ItemPair = Backbone.Model.extend({
+            urlRoot: '/bitrix'
         });
 
 
@@ -397,9 +420,22 @@
                 'change .bind-form' : 'searchCode'
             },
             searchCode: function(ev) {
+                var that = this;
                 var value = $(ev.currentTarget).find('#id').val();
-                if ( value && value.length > 5 ) {
-                    console.log("triggered");
+                var rowTpl = _.template($('#search-result-template').html());
+                if ( value && value.length >= 4 ) {
+                    var itemPair = new ItemPair({id: value});
+                    itemPair.fetch({success:  function(ip) {
+                            var fst = "";
+                            if(itemPair.get("key")) {
+                                fst += rowTpl({item: itemPair.get("key")});
+                             }
+                            if(itemPair.get("value")) {
+                                fst += rowTpl({item: itemPair.get("value")});
+                             }
+                            $("#search-result-body").html(fst);
+                        }
+                    });
                 }
             }
         });
