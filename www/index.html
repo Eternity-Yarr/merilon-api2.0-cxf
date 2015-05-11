@@ -7,7 +7,6 @@
 </head>
 <body>
     <div class="container">
-        <h1>Home</h1>
         <hr/>
         <div class="row">
             <div class="menu col-md-3">
@@ -137,7 +136,7 @@
                     </button>
                 </td>
                 <td>
-                    <button data-id="<%= elem.item['id'] %>" type="button" class="do-bind btn btn-default">
+                    <button data-id="<%= elem.item['id'] %>" type="button" class="go-bind btn btn-default">
                         <i class="glyphicon glyphicon-link"></i>
                     </button>
                 </td>
@@ -207,7 +206,7 @@
                 <td><%= elem.get('brand') %></td>
                 <td><%= elem.get('name') %></td>
                 <td>
-                    <button data-id="<%= elem.get('id') %>" type="button" class="do-bind btn btn-default">
+                    <button data-id="<%= elem.get('id') %>" type="button" class="go-bind btn btn-default">
                         <i class="glyphicon glyphicon-link"></i>
                     </button>
                 </td>
@@ -464,7 +463,8 @@
                 console.log("Rendering staging list");
             },
             events: {
-                'click .do-unstage': 'unstage'
+                'click .do-unstage': 'unstage',
+                'click .go-bind': 'goBind'
             },
             unstage: function(ev) {
                 console.log('Unstaging ' + ev.currentTarget.dataset.id);
@@ -476,6 +476,9 @@
                         el.parent().parent().remove();
                     }
                 });
+            },
+            goBind: function(ev) {
+                router.navigate('bind/'+ev.currentTarget.dataset.id,{trigger: true});
             }
         });
 
