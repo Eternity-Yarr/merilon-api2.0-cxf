@@ -83,6 +83,4 @@ public class TrackService
         update();
         return trackedNodes;
     }
-
-    public void refresh() {}
 }
