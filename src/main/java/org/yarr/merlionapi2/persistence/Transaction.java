@@ -58,6 +58,15 @@ public class Transaction
         return ps;
     }
 
+    public void s(String sql) throws SQLException {
+        try(Statement s = connection.createStatement()) {
+            s.execute(sql);
+        } catch (SQLException e) {
+            log.error("Exception occurred ({}), rolling back transaction #{}", e.getMessage(), transactionNo, e);
+            rollback();
+        }
+    }
+
     public ResultSet rs(PreparedStatement ps) throws SQLException {
         log.debug("Executing preparing statement within transaction #{}", transactionNo);
         try
