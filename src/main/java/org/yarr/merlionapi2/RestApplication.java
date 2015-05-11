@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.yarr.merlionapi2.rest.*;
 import org.yarr.merlionapi2.rest.errors.NPEMapper;
 import org.yarr.merlionapi2.rest.errors.PokemonMapper;
+import org.yarr.merlionapi2.rpc.MonitorRPC;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -29,7 +30,7 @@ public class RestApplication extends Application
         TrackRest track = SpringContext.ctx().getBean(TrackRest.class);
         ItemRest item = SpringContext.ctx().getBean(ItemRest.class);
         CatalogRest catalog = SpringContext.ctx().getBean(CatalogRest.class);
-        MonitorRest monitor = SpringContext.ctx().getBean(MonitorRest.class);
+        MonitorRPC monitor = SpringContext.ctx().getBean(MonitorRPC.class);
         CatalogItemsRest catalogItems = SpringContext.ctx().getBean(CatalogItemsRest.class);
         StageRest stage = SpringContext.ctx().getBean(StageRest.class);
         BitrixRest bitrix = SpringContext.ctx().getBean(BitrixRest.class);

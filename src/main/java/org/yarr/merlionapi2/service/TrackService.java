@@ -29,7 +29,7 @@ public class TrackService
         return get();
     }
 
-    private TrackedNodes get() {
+    private synchronized TrackedNodes get() {
         try
         {
             TrackedNodes nodes = mapper.readValue(new File(STORAGE), TrackedNodes.class);
@@ -46,7 +46,7 @@ public class TrackService
         return trackedNodes;
     }
 
-    private TrackedNodes update() {
+    private synchronized TrackedNodes update() {
         try
         {
             String json = mapper

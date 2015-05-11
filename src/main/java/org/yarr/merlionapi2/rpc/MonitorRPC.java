@@ -1,16 +1,11 @@
-package org.yarr.merlionapi2.rest;
+package org.yarr.merlionapi2.rpc;
 
-import https.api_merlion_com.dl.mlservice2.ArrayOfShipmentMethodsResult;
-import https.api_merlion_com.dl.mlservice2.ShipmentMethodsResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yarr.merlionapi2.MLPortProvider;
 import org.yarr.merlionapi2.persistence.Database;
 import org.yarr.merlionapi2.scheduler.TaskQueue;
-import org.yarr.merlionapi2.service.BindService;
-import org.yarr.merlionapi2.service.CatalogService;
-import org.yarr.merlionapi2.service.MonitorService;
-import org.yarr.merlionapi2.service.TrackService;
+import org.yarr.merlionapi2.service.*;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -22,27 +17,30 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 
-@Path("/_monitor")
+@Path("/rpc/monitor")
 @Produces(MediaType.APPLICATION_JSON)
 @Component
-public class MonitorRest
+public class MonitorRPC
 {
     private final CatalogService catalogService;
     private final TrackService trackService;
     private final BindService bindService;
     private final Database db;
     private final MLPortProvider portProvider;
+    private final RateService rateService;
     @Autowired
-    public MonitorRest(CatalogService catalogService,
-                       TrackService trackService,
-                       BindService bindService,
-                       Database database,
-                       MLPortProvider portProvider) {
+    public MonitorRPC(CatalogService catalogService,
+                      TrackService trackService,
+                      BindService bindService,
+                      Database database,
+                      MLPortProvider portProvider,
+                      RateService rateService) {
         this.catalogService = catalogService;
         this.trackService = trackService;
         this.bindService = bindService;
         this.db = database;
         this.portProvider = portProvider;
+        this.rateService = rateService;
     }
 
     @GET
@@ -67,17 +65,18 @@ public class MonitorRest
         }
 
         Map<String, Object> stats = new TreeMap<>();
+        stats.put("4. Current USD-RUB rate", rateService.usd2rub());
         stats.put("1. Tasks in queue", TaskQueue.i().size());
-        stats.put("4. Catalogs count", catalogService.get().nodes().size());
-        stats.put("6. Currently tracking categories", trackService.all().nodes());
-        stats.put("5. Bindings", bindService.all().bonds().size());
+        stats.put("5. Catalogs count", catalogService.get().nodes().size());
+        stats.put("7. Currently tracking categories", trackService.all().nodes());
+        stats.put("6. Bindings", bindService.all().bonds().size());
         stats.put("2. Database accessible", dbAccessible);
         stats.put("3. Merlion API accesible", port != null);
         if(!error.isEmpty())
             stats.put("Errors", error);
         List<String> events = new ArrayList<>(MonitorService.info());
         Collections.reverse(events);
-        stats.put("7. Logging events", events);
+        stats.put("8. Logging events", events);
         return stats;
     }
 }
