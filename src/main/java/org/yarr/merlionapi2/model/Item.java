@@ -50,4 +50,15 @@ public class Item
     {
         return brand;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Item{" +
+                "vendorCode='" + vendorCode + '\'' +
+                ", id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", brand='" + brand + '\'' +
+                '}';
+    }
 }

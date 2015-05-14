@@ -49,6 +49,7 @@ public class MLPortProvider
             rc.put(BindingProvider.USERNAME_PROPERTY, LOGIN);
             rc.put(BindingProvider.PASSWORD_PROPERTY, PASSWORD);
         } catch (Throwable e) {
+            log.warn("Error during port initialization", e);
             port = null;
             return false;
         }

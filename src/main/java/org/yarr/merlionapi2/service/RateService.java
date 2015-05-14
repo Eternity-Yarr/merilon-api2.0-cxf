@@ -19,9 +19,13 @@ public class RateService
     public double usd2rub() {
         try
         {
-            return rateCache.get("USD", () -> Rates.i().getRateOf("USD"));
+            return rateCache.get("USD", () -> new Rates().getRateOf("USD"));
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public double usd2rub(double usd) {
+        return usd2rub() * usd;
     }
 }

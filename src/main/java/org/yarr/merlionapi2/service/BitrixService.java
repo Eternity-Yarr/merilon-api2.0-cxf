@@ -83,14 +83,14 @@ WHERE iblock_property_id = 200 AND bie.id = ?
         }
     }
 
-    public Optional<Long> getPriceById(long code) {
+    public Optional<Double> getPriceById(String code) {
         String SQL = "SELECT price FROM b_catalog_price WHERE product_id = ?";
         try(Connection c = db.c();
             PreparedStatement ps = c.prepareStatement(SQL)) {
-            ps.setLong(1, code);
+            ps.setString(1, code);
             try(ResultSet  rs = ps.executeQuery()) {
                 if(rs.next())
-                    return Optional.of(rs.getLong("price"));
+                    return Optional.of(rs.getDouble("price"));
                 else
                     return Optional.empty();
             }

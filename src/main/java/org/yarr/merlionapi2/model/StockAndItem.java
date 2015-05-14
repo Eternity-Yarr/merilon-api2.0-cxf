@@ -29,4 +29,14 @@ public class StockAndItem
     public String id() {
         return id;
     }
+
+    @Override
+    public String toString()
+    {
+        return "StockAndItem{" +
+                "id='" + id + '\'' +
+                ", item=" + item +
+                ", stock=" + stock +
+                '}';
+    }
 }

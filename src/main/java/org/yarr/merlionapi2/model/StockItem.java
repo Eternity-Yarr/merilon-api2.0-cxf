@@ -33,5 +33,15 @@ public class StockItem
     public String id() {
         return id;
     }
+
+    @Override
+    public String toString()
+    {
+        return "StockItem{" +
+                "price=" + price +
+                ", available=" + available +
+                ", id='" + id + '\'' +
+                '}';
+    }
 }
 

@@ -14,10 +14,9 @@ import java.net.URLConnection;
 public class Rates
 {
 	final private static String URL = "http://www.cbr.ru/scripts/XML_daily.asp";
-	private static Rates instance;
 	private CBRResponse cbr;
 
-	private Rates()
+	public Rates()
 	{
 		try
 		{
@@ -62,14 +61,6 @@ public class Rates
 			ret = m.asPOJO(new StringReader(response));
 
 		return ret;
-	}
-
-	public static Rates i()
-	{
-		if(instance == null)
-			instance = new Rates();
-
-		return instance;
 	}
 
 	public double getRateOf(String code)
