@@ -9,10 +9,7 @@ import org.yarr.merlionapi2.model.Bindings;
 import org.yarr.merlionapi2.model.Bond;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,11 +42,11 @@ public class BindService
         return bindings;
     }
 
-    public List<Bond> get(String catalogId) {
+    public Set<Bond> get(String catalogId) {
         return get().bonds().get(catalogId);
     }
 
-    private synchronized Bindings set(Map<String, List<Bond>> nodes) {
+    private synchronized Bindings set(Map<String, Set<Bond>> nodes) {
         try
         {
             Bindings newBindings = new Bindings(nodes);
@@ -72,16 +69,22 @@ public class BindService
 
     public Bond bind(String catalogId, Bond bond)
     {
-        Map<String, List<Bond>> newBindings = new HashMap<>(bindings.bonds());
-        List<Bond> bonds;
+        Map<String, Set<Bond>> newBindings = new HashMap<>(bindings.bonds());
+        Set<Bond> bonds;
         if (newBindings.get(catalogId) == null)
         {
-            bonds = new ArrayList<>();
+            bonds = new HashSet<>();
             newBindings.put(catalogId, bonds);
         } else
             bonds = newBindings.get(catalogId);
 
-        bonds.add(bond);
+        if (bonds.contains(bond)) {
+            //FIXME: lol, replace
+            bonds.remove(bond);
+            bonds.add(bond);
+        } else {
+            bonds.add(bond);
+        }
         set(newBindings);
         return bond;
     }
@@ -102,36 +105,36 @@ public class BindService
 
     public Bindings unbindByMerlId(String merlionId)
     {
-        Map<String, List<Bond>> bonds = new HashMap<>();
-        for(Map.Entry<String, List<Bond>> entry: bindings.bonds().entrySet())
+        Map<String, Set<Bond>> bonds = new HashMap<>();
+        for(Map.Entry<String, Set<Bond>> entry: bindings.bonds().entrySet())
             bonds.put(entry.getKey(),
                     entry.getValue()
                         .stream()
                         .filter(bond -> !bond.merlionId().equals(merlionId))
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toSet()));
 
         return set(bonds);
     }
 
     public Bindings unbindById(String id)
     {
-        Map<String, List<Bond>> bonds = new HashMap<>();
-        for(Map.Entry<String, List<Bond>> entry: bindings.bonds().entrySet())
+        Map<String, Set<Bond>> bonds = new HashMap<>();
+        for(Map.Entry<String, Set<Bond>> entry: bindings.bonds().entrySet())
             bonds.put(entry.getKey(),
                     entry.getValue()
                             .stream()
                             .filter(bond ->
                                             !bond.id().equals(id)
                             )
-                            .collect(Collectors.toList()));
+                            .collect(Collectors.toSet()));
 
         return set(bonds);
     }
 
     public Bindings unbind(String merlionId, String id)
     {
-        Map<String, List<Bond>> bonds = new HashMap<>();
-        for(Map.Entry<String, List<Bond>> entry: bindings.bonds().entrySet())
+        Map<String, Set<Bond>> bonds = new HashMap<>();
+        for(Map.Entry<String, Set<Bond>> entry: bindings.bonds().entrySet())
             bonds.put(entry.getKey(),
                     entry.getValue()
                             .stream()
@@ -140,7 +143,7 @@ public class BindService
                                         !bond.merlionId().equals(merlionId) &&
                                         !bond.id().equals(id)
                             )
-                            .collect(Collectors.toList()));
+                            .collect(Collectors.toSet()));
 
         return set(bonds);
     }
@@ -148,7 +151,7 @@ public class BindService
     public Bond searchByMerlionId(String merlionId)
     {
         Bond ret = null;
-        for(Map.Entry<String, List<Bond>> entry: bindings.bonds().entrySet())
+        for(Map.Entry<String, Set<Bond>> entry: bindings.bonds().entrySet())
         {
             ret = entry.getValue()
                     .stream()
@@ -166,7 +169,7 @@ public class BindService
     public Bond searchById(String id)
     {
         Bond ret = null;
-        for(Map.Entry<String, List<Bond>> entry: bindings.bonds().entrySet())
+        for(Map.Entry<String, Set<Bond>> entry: bindings.bonds().entrySet())
         {
             ret = entry.getValue()
                     .stream()
@@ -184,7 +187,7 @@ public class BindService
     public Bond search(String merlionId, String id)
     {
         Bond ret = null;
-        for(Map.Entry<String, List<Bond>> entry: bindings.bonds().entrySet())
+        for(Map.Entry<String, Set<Bond>> entry: bindings.bonds().entrySet())
         {
             ret = entry.getValue()
                     .stream()

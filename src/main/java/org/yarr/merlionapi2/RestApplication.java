@@ -34,10 +34,11 @@ public class RestApplication extends Application
         CatalogItemsRest catalogItems = SpringContext.ctx().getBean(CatalogItemsRest.class);
         StageRest stage = SpringContext.ctx().getBean(StageRest.class);
         BitrixRest bitrix = SpringContext.ctx().getBean(BitrixRest.class);
+        BindRest bind = SpringContext.ctx().getBean(BindRest.class);
         CorsFilter corsFilter = new CorsFilter();
         corsFilter.getAllowedOrigins().add("*");
         singletons = ImmutableSet.of(
-                track, item, catalog, monitor, corsFilter, catalogItems, stage, bitrix);
+                track, item, catalog, monitor, corsFilter, catalogItems, stage, bitrix, bind);
     }
 
     public static void startUp()

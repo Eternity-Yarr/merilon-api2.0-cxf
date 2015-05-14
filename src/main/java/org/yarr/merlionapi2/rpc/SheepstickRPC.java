@@ -6,9 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yarr.merlionapi2.directory.ItemsRepository;
-import org.yarr.merlionapi2.model.Bond;
 import org.yarr.merlionapi2.model.StockAndItem;
-import org.yarr.merlionapi2.rest.BitrixRest;
 import org.yarr.merlionapi2.service.BindService;
 import org.yarr.merlionapi2.service.BitrixService;
 import org.yarr.merlionapi2.service.RateService;
@@ -17,8 +15,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +53,7 @@ public class SheepstickRPC
 
         bindService.all().bonds().values()
                 .stream()
-                .reduce(new ArrayList<>(), (acc, xs) -> {
+                .reduce(new HashSet<>(), (acc, xs) -> {
                     acc.addAll(xs);
                     return acc;
                 })

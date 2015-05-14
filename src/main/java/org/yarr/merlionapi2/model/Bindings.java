@@ -5,23 +5,24 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Bindings
 {
-    private final Map<String, List<Bond>> bonds;
+    private final Map<String, Set<Bond>> bonds;
 
     @JsonCreator
-    public Bindings(@JsonProperty("bonds") Map<String, List<Bond>> bonds) {
+    public Bindings(@JsonProperty("bonds") Map<String, Set<Bond>> bonds) {
         this.bonds = bonds;
     }
 
     @JsonProperty
-    public Map<String, List<Bond>> bonds()
+    public Map<String, Set<Bond>> bonds()
     {
         return bonds;
     }
 
-    public List<Bond> bonds(String catId) {
+    public Set<Bond> bonds(String catId) {
         return bonds.get(catId);
     }
 }

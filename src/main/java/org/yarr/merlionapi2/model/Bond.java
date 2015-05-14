@@ -3,6 +3,8 @@ package org.yarr.merlionapi2.model;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import javax.validation.constraints.NotNull;
+
 public class Bond
 {
     private final String merlionId;
@@ -11,9 +13,9 @@ public class Bond
 
     @JsonCreator
     public Bond(
-            @JsonProperty("merlionId") String merlionId,
-            @JsonProperty("merlionCatId") String catId,
-            @JsonProperty("id") String id) {
+            @NotNull @JsonProperty("merlionId") String merlionId,
+            @NotNull @JsonProperty("merlionCatId") String catId,
+            @NotNull @JsonProperty("id") String id) {
         this.merlionId = merlionId;
         this.catId = catId;
         this.id = id;
@@ -35,5 +37,27 @@ public class Bond
     public String id()
     {
         return id;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Bond bond = (Bond) o;
+
+        if (!catId.equals(bond.catId)) return false;
+        if (!merlionId.equals(bond.merlionId)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = merlionId.hashCode();
+        result = 31 * result + catId.hashCode();
+        return result;
     }
 }
