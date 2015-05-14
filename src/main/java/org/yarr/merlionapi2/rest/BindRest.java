@@ -12,6 +12,8 @@ import org.yarr.merlionapi2.service.CategoryService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.HashSet;
+import java.util.Set;
 
 @Path("/bind")
 @Produces(MediaType.APPLICATION_JSON)
@@ -28,6 +30,19 @@ public class BindRest
         this.bindService = bindService;
         this.bitrixService = bitrixService;
         this.categoryService = categoryService;
+    }
+
+    @GET
+    @Path("/")
+    public Set<Bond> all() {
+        return bindService.all().bonds().values()
+                .stream()
+                .reduce(
+                    new HashSet<>(),
+                    (acc, set) -> {
+                        acc.addAll(set);
+                        return acc;
+                    });
     }
 
     @PUT

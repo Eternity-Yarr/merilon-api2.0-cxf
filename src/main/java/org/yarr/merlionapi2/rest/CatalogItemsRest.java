@@ -9,10 +9,7 @@ import org.yarr.merlionapi2.service.CatalogService;
 import org.yarr.merlionapi2.service.CategoryService;
 import org.yarr.merlionapi2.service.TrackService;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +46,7 @@ public class CatalogItemsRest
 
     @GET
     @Path("/")
-    public List<StockAndItem> all() {
+    public List<StockAndItem> all(@QueryParam("filtered") boolean filtered) {
         List<StockAndItem> items = new ArrayList<>();
         for(CatalogNode cn  : trackService.all().nodes().values())
             items.addAll(getItems(cn.id()));
