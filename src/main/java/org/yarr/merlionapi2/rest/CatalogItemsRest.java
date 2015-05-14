@@ -46,7 +46,7 @@ public class CatalogItemsRest
 
     @GET
     @Path("/")
-    public List<StockAndItem> all(@QueryParam("filtered") boolean filtered) {
+    public List<StockAndItem> all() {
         List<StockAndItem> items = new ArrayList<>();
         for(CatalogNode cn  : trackService.all().nodes().values())
             items.addAll(getItems(cn.id()));
