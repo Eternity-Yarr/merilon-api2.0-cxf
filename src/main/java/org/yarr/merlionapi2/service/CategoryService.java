@@ -70,12 +70,8 @@ public class CategoryService
         }
     }
 
-    public Pair<Cache<String, Category>, Cache<String, Stock>> caches() {
-        return new Pair<>(categoryCache, stockCache);
-    }
-
     private static class ItemsRetriever implements Callable<Category>{
-        private static final RateLimiter getItemsLimiter = RateLimiter.create(3.0);
+        private static final RateLimiter getItemsLimiter = RateLimiter.create(1.0);
         private final MLPortProvider portProvider;
         private final String catId;
         public ItemsRetriever(String catId, MLPortProvider portProvider) {
@@ -92,7 +88,7 @@ public class CategoryService
         private Map<String, Item> retrieve()
         {
             double throttle = getItemsLimiter.acquire();
-            log.debug("Waited {} seconds for rate limit", throttle);
+            log.debug("Waited {} seconds for getItems for catId={} rate limit", throttle, catId);
             ArrayOfItemsResult result = portProvider.get().getItems(catId, "", "1", 0, 10000);
             return result.getItem()
                     .parallelStream()
@@ -103,7 +99,7 @@ public class CategoryService
     }
 
     private static class ItemsStockRetriever implements Callable<Stock>{
-        private static final RateLimiter getItemsAvailLimiter = RateLimiter.create(5.0);
+        private static final RateLimiter getItemsAvailLimiter = RateLimiter.create(3.0);
         private MLPortProvider portProvider;
         private String catId;
 
