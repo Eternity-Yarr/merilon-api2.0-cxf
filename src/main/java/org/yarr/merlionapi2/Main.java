@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.yarr.merlionapi2.model.Config;
-import org.yarr.merlionapi2.scheduler.TaskQueue;
 
 import java.io.File;
 
@@ -29,7 +28,6 @@ public class Main
             System.out.println(catalog.canonicalName(node));
             */
         ctx.refresh();
-        TaskQueue.i();
         RestApplication.startUp();
         }
 }

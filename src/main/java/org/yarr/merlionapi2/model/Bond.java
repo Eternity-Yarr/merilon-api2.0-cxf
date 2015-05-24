@@ -60,4 +60,14 @@ public class Bond
         result = 31 * result + catId.hashCode();
         return result;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Bond{" +
+                "merlionId='" + merlionId + '\'' +
+                ", catId='" + catId + '\'' +
+                ", id='" + id + '\'' +
+                '}';
+    }
 }

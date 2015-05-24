@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -93,8 +94,8 @@ public class CategoryService
             return result.getItem()
                     .parallelStream()
                     .filter(ir -> ir.getNo() != null)
-                    .map(ir -> new Item(ir.getVendorPart(), ir.getNo(), ir.getName(), ir.getBrand()))
-                    .collect(Collectors.toMap(Item::id, Function.<Item>identity()));
+                    .map(ir -> new Item(ir.getNo(), catId, ir.getVendorPart(), ir.getName(), ir.getBrand()))
+                    .collect(Collectors.toMap(Item::id, Function.<Item>identity(), (i, i2) -> i));
         }
     }
 
@@ -123,7 +124,7 @@ public class CategoryService
                     .parallelStream()
                     .filter(ia -> ia.getNo() != null)
                     .map(ia -> new StockItem(ia.getPriceClient(), ia.getAvailableClient(), ia.getNo()))
-                    .collect(Collectors.toMap(StockItem::id, Function.<StockItem>identity()));
+                    .collect(Collectors.toMap(StockItem::id, Function.<StockItem>identity(), (i1, i2) -> i2));
         }
     }
 

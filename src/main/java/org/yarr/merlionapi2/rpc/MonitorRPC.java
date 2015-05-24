@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yarr.merlionapi2.MLPortProvider;
 import org.yarr.merlionapi2.persistence.Database;
-import org.yarr.merlionapi2.scheduler.TaskQueue;
 import org.yarr.merlionapi2.service.*;
 
 import javax.ws.rs.GET;
@@ -65,18 +64,17 @@ public class MonitorRPC
         }
 
         Map<String, Object> stats = new TreeMap<>();
-        stats.put("4. Current USD-RUB rate", rateService.usd2rub());
-        stats.put("1. Tasks in queue", TaskQueue.i().size());
-        stats.put("5. Catalogs count", catalogService.get().nodes().size());
-        stats.put("7. Currently tracking categories", trackService.all().nodes());
-        stats.put("6. Bindings", bindService.all().bonds().size());
+        stats.put("3. Current USD-RUB rate", rateService.usd2rub());
+        stats.put("4. Catalogs count", catalogService.get().nodes().size());
+        stats.put("6. Currently tracking categories", trackService.all().nodes());
+        stats.put("5. Bindings", bindService.all().bonds().size());
         stats.put("2. Database accessible", dbAccessible);
         stats.put("3. Merlion API accesible", port != null);
         if(!error.isEmpty())
             stats.put("Errors", error);
         List<String> events = new ArrayList<>(MonitorService.info());
         Collections.reverse(events);
-        stats.put("8. Logging events", events);
+        stats.put("7. Logging events", events);
         return stats;
     }
 }

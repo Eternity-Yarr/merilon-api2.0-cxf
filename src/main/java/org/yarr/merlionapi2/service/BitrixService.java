@@ -159,6 +159,6 @@ WHERE iblock_property_id = 200 AND bie.id = ?
 
     private Item from(ResultSet rs) throws SQLException {
         String name = String.format("[%s] %s", rs.getString("code"), rs.getString("name"));
-        return new Item(rs.getString("article"), rs.getString("id"), name, "");
+        return new Item(rs.getString("id"), "", rs.getString("article"), name, "");
     }
 }
