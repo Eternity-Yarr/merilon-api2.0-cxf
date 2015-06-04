@@ -64,11 +64,11 @@ ON  article.id = biep.iblock_element_id
 WHERE iblock_property_id = 200 AND bie.id = ?
  */
         String SQL =
-                "SELECT bie.id, bie.name, bie.searchable_content, biep.value as code, article.value as article FROM b_iblock_element_property biep\n" +
+                "SELECT bie.id, bie.name, bie.searchable_content, '-' as code, article.value as article FROM b_iblock_element_property biep\n" +
                         "LEFT JOIN b_iblock_element bie ON biep.iblock_element_id = bie.id\n" +
                         "LEFT JOIN (SELECT iblock_element_id as id, value FROM b_iblock_element_property WHERE iblock_property_id = 4) article\n" +
                         "ON  article.id = biep.iblock_element_id\n" +
-                        "WHERE iblock_property_id = 200 AND bie.id = ?\n";
+                        "WHERE bie.id = ?\n";
         try(Connection c = db.c();
             PreparedStatement ps = c.prepareStatement(SQL)) {
             ps.setString(1, id);

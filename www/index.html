@@ -228,6 +228,8 @@
             <div class="form-group">
                 <label for="id">Код товара</label>
                 <input type="text" class="form-control" id="id" placeholder="9000">
+                <input type="hidden" id="merlion-category" value="<%= item.get('catId') %>">
+                <input type="hidden" id="merlion-id" value="<%= item.get('id') %>">
             </div>
             <button type="submit" class="do-search btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
             <button type="button" class="do-clear btn btn-default"><i class="glyphicon glyphicon-grain"></i></button>
@@ -278,8 +280,12 @@
             urlRoot: '/track'
         });
 
-        var BondNode = Backbone.Model.extend({
+        var StageNode = Backbone.Model.extend({
             urlRoot: '/stage'
+        });
+
+        var BondNode = Backbone.Model.extend({
+            urlRoot: '/bind'
         });
 
         var Items = Backbone.Model.extend({
@@ -393,7 +399,7 @@
                 'click .do-stage' : 'doStage'
             },
             doStage: function(ev) {
-                var bond = new BondNode();
+                var bond = new StageNode();
                 var el  = $(ev.currentTarget);
                 el.parent().parent().addClass("warning");
                 bond.save({id: ev.currentTarget.dataset.id}, {success: function(b) {
@@ -421,6 +427,7 @@
                 'click .do-search' : 'searchCode',
                 'click .do-bind' : 'doBind',
                 'click .do-clear' : 'doClear',
+                'submit' : 'doNothing'
             },
             searchCode: function(ev) {
                 var that = this;
@@ -442,10 +449,25 @@
                 }
             },
             doBind: function(ev) {
+                var catId = $('#merlion-category').val();
+                var merlId = $('#merlion-id').val();
+                var id = ev.currentTarget.dataset['id']
+                console.log(merlId + ' of catefory ' + catId + ' with ' + id);
+                var bond = new BondNode({merlionId: merlId, merlionCatId: catId, id: id});
+                console.log(bond);
                 console.log('binding!');
+                bond.save({}, {success:
+                    function() {
+                        console.log('succeed!');
+                        router.navigate('staging', {trigger: true});
+                    }
+                });
             },
             doClear: function() {
                 $("#search-result-body").children().remove(); // >_<  RIP
+            },
+            doNothing: function() {
+                return false;
             }
         });
 
@@ -468,7 +490,7 @@
             },
             unstage: function(ev) {
                 console.log('Unstaging ' + ev.currentTarget.dataset.id);
-                var bond = new BondNode({ id : ev.currentTarget.dataset.id});
+                var bond = new StageNode({ id : ev.currentTarget.dataset.id});
                 var el  = $(ev.currentTarget);
                 el.parent().parent().addClass("warning");
                 bond.destroy({
