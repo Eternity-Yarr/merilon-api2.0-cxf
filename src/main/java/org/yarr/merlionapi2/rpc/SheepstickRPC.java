@@ -76,7 +76,7 @@ public class SheepstickRPC
                                                     .ifPresent(inStock -> {
                                                         long merlionPrice = (long) Math.ceil(rateService.usd2rub(si.stock().price()));
 
-                                                        if (!inStock && merlionPrice < currentPrice) {
+                                                        if (!inStock && currentPrice < merlionPrice) {
                                                             merlionPrice +=
                                                                     (long)(Math.ceil(merlionPrice * configService.valudeAddedPercent() / 100.0));
                                                             log.warn("Setting new price for %s: %s, old price: %s", si, merlionPrice, currentPrice);
