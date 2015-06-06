@@ -13,6 +13,7 @@ import org.yarr.merlionapi2.rest.*;
 import org.yarr.merlionapi2.rest.errors.NPEMapper;
 import org.yarr.merlionapi2.rest.errors.PokemonMapper;
 import org.yarr.merlionapi2.rpc.MonitorRPC;
+import org.yarr.merlionapi2.rpc.SheepstickRPC;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -35,10 +36,11 @@ public class RestApplication extends Application
         StageRest stage = SpringContext.ctx().getBean(StageRest.class);
         BitrixRest bitrix = SpringContext.ctx().getBean(BitrixRest.class);
         BindRest bind = SpringContext.ctx().getBean(BindRest.class);
+        SheepstickRPC sheep = SpringContext.ctx().getBean(SheepstickRPC.class);
         CorsFilter corsFilter = new CorsFilter();
         corsFilter.getAllowedOrigins().add("*");
         singletons = ImmutableSet.of(
-                track, item, catalog, monitor, corsFilter, catalogItems, stage, bitrix, bind);
+                track, item, catalog, monitor, corsFilter, catalogItems, stage, bitrix, bind, sheep);
     }
 
     public static void startUp()

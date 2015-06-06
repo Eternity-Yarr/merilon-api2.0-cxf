@@ -6,7 +6,10 @@ import org.springframework.stereotype.Service;
 import org.yarr.merlionapi2.model.Item;
 import org.yarr.merlionapi2.persistence.Database;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Optional;
 
 @Service
@@ -137,6 +140,30 @@ WHERE iblock_property_id = 200 AND bie.id = ?
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    public Optional<Boolean> alreadyInStock(String id, int merlionSupplierId) {
+        String SQL = "SELECT COUNT(*) > 0 AS cnt " +
+                "FROM my_availability " +
+                "WHERE item_id = ? " +
+                "AND aviable > 0 " +
+                "AND supplier_id != ?";
+
+        try (Connection c = db.c();
+              PreparedStatement ps = c.prepareStatement(SQL)) {
+
+            ps.setString(1, id);
+            ps.setInt(2, merlionSupplierId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next())
+                    return Optional.of(rs.getBoolean("cnt"));
+                else
+                    return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
