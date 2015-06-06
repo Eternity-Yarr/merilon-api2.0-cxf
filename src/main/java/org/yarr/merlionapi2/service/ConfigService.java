@@ -45,4 +45,8 @@ public class ConfigService
     public int merlionStoreId() {
         return config.merlionStoreId;
     }
+
+    public int valudeAddedPercent() {
+        return config.valudeAddedPercent;
+    }
 }
