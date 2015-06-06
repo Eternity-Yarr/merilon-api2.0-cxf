@@ -12,6 +12,7 @@ public class Config
     public final String mysqlPassword;
     public final int merlionSupplierId;
     public final int merlionStoreId;
+    public final int valudeAddedPercent;
 
     @JsonCreator
     public Config(
@@ -21,7 +22,8 @@ public class Config
             @JsonProperty("mysql_user") String mysqlUser,
             @JsonProperty("mysql_password") String mysqlPassword,
             @JsonProperty("merlion_supplier_id") int merlionSupplierId,
-            @JsonProperty("merlion_store_id") int merlionStoreId)
+            @JsonProperty("merlion_store_id") int merlionStoreId,
+            @JsonProperty("valude_added_percent") int valudeAddedPercent)
     {
         this.apiLogin = apiLogin;
         this.apiPassword = apiPassword;
@@ -30,5 +32,6 @@ public class Config
         this.mysqlPassword = mysqlPassword;
         this.merlionStoreId = merlionStoreId;
         this.merlionSupplierId = merlionSupplierId;
+        this.valudeAddedPercent = valudeAddedPercent;
     }
 }

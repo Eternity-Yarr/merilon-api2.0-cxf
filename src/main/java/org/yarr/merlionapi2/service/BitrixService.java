@@ -71,10 +71,10 @@ WHERE iblock_property_id = 200 AND bie.id = ?
         }
     }
 
-    public Optional<Double> getPriceById(String code) {
+    public Optional<Long> getPriceById(String code) {
         try {
             String SQL = "SELECT price FROM b_catalog_price WHERE product_id = ?";
-            return Optional.of(jdbcTemplate.queryForObject(SQL, Double.class, code));
+            return Optional.of((long)Math.ceil(jdbcTemplate.queryForObject(SQL, Double.class, code)));
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }

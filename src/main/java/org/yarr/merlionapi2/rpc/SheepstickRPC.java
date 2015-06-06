@@ -75,7 +75,11 @@ public class SheepstickRPC
                                             bitrixService.alreadyInStock(si.id(), configService.merlionSupplierId())
                                                     .ifPresent(inStock -> {
                                                         if (!inStock && rateService.usd2rub(si.stock().price()) < currentPrice) {
-                                                            log.warn("Price for %s is lower than purchase price %s", si, currentPrice);
+                                                            long newPrice = (long)Math.ceil(si.stock().price());
+                                                            newPrice +=
+                                                                    (long)(Math.ceil(newPrice * configService.valudeAddedPercent() / 100.0));
+                                                            log.warn("Setting new price for %s: %s, old price: %s", si, newPrice, currentPrice);
+                                                            bitrixService.setPriceById(b.id(), newPrice);
                                                         }
                                                     }));
                         } else {
