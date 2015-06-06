@@ -2,12 +2,13 @@ package org.yarr.merlionapi2.service;
 
 import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.yarr.merlionapi2.model.Item;
-import org.yarr.merlionapi2.persistence.Database;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
@@ -15,17 +16,17 @@ import java.util.Optional;
 @Service
 public class BitrixService
 {
-    private final Database db;
     private final int merlionSupplierId;
     private final int merlionStoreId;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public BitrixService(Database db, ConfigService config) {
+    public BitrixService(ConfigService config, DataSource dataSource) {
         merlionStoreId = config.merlionStoreId();
         merlionSupplierId = config.merlionSupplierId();
         Preconditions.checkArgument(merlionStoreId != 0, "System isn't properly configured, store_id is 0");
         Preconditions.checkArgument(merlionSupplierId != 0, "System isn't properly configured, supplier_id is 0");
-        this.db = db;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     public Optional<Item> getByCode(String id) {
@@ -42,19 +43,10 @@ WHERE iblock_property_id = 200 AND biep.VALUE = ?
                 "LEFT JOIN (SELECT iblock_element_id as id, value FROM b_iblock_element_property WHERE iblock_property_id = 4) article\n" +
                 "ON  article.id = biep.iblock_element_id\n" +
                 "WHERE iblock_property_id = 200 AND biep.VALUE = ?\n";
-        try(Connection c = db.c();
-            PreparedStatement ps = c.prepareStatement(SQL)
-            ) {
-            ps.setString(1, id);
-            try (ResultSet rs = ps.executeQuery())
-            {
-                if (rs.next())
-                    return Optional.of(from(rs));
-                else
-                    return Optional.empty();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try {
+            return Optional.of(jdbcTemplate.queryForObject(SQL, new ItemMapper(), id));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
         }
     }
 
@@ -68,37 +60,23 @@ WHERE iblock_property_id = 200 AND bie.id = ?
  */
         String SQL =
                 "SELECT bie.id, bie.name, bie.searchable_content, '-' as code, article.value as article FROM b_iblock_element_property biep\n" +
-                        "LEFT JOIN b_iblock_element bie ON biep.iblock_element_id = bie.id\n" +
-                        "LEFT JOIN (SELECT iblock_element_id as id, value FROM b_iblock_element_property WHERE iblock_property_id = 4) article\n" +
-                        "ON  article.id = biep.iblock_element_id\n" +
-                        "WHERE bie.id = ?\n";
-        try(Connection c = db.c();
-            PreparedStatement ps = c.prepareStatement(SQL)) {
-            ps.setString(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if(rs.next())
-                    return Optional.of(from(rs));
-                else
-                    return Optional.empty();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+                "LEFT JOIN b_iblock_element bie ON biep.iblock_element_id = bie.id\n" +
+                "LEFT JOIN (SELECT iblock_element_id as id, value FROM b_iblock_element_property WHERE iblock_property_id = 4) article\n" +
+                "ON  article.id = biep.iblock_element_id\n" +
+                "WHERE bie.id = ?\n";
+        try {
+            return Optional.of(jdbcTemplate.queryForObject(SQL, new ItemMapper(), id));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
         }
     }
 
     public Optional<Double> getPriceById(String code) {
-        String SQL = "SELECT price FROM b_catalog_price WHERE product_id = ?";
-        try(Connection c = db.c();
-            PreparedStatement ps = c.prepareStatement(SQL)) {
-            ps.setString(1, code);
-            try(ResultSet  rs = ps.executeQuery()) {
-                if(rs.next())
-                    return Optional.of(rs.getDouble("price"));
-                else
-                    return Optional.empty();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try {
+            String SQL = "SELECT price FROM b_catalog_price WHERE product_id = ?";
+            return Optional.of(jdbcTemplate.queryForObject(SQL, Double.class, code));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
         }
     }
 
@@ -106,86 +84,51 @@ WHERE iblock_property_id = 200 AND bie.id = ?
     {
         Preconditions.checkArgument(price != 0, "tried to set price to 0");
         String SQL = "UPDATE b_catalog_price SET price =  ? WHERE product_id = ?";
-        try (Connection c = db.c();
-             PreparedStatement ps = c.prepareStatement(SQL)) {
-            ps.setLong(1, price);
-            ps.setString(2, code);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        jdbcTemplate.update(SQL, price, code);
     }
 
     public void setQuantityById(String code, int quantity) {
         Optional<Integer> id = getAvailabilityId(code);
         if(id.isPresent()) {
             String SQL = "UPDATE my_availability SET aviable = ?, date = NOW() WHERE id = ?";
-            try (Connection c = db.c();
-                PreparedStatement ps = c.prepareStatement(SQL)) {
-                ps.setInt(1, quantity);
-                ps.setInt(2, id.get());
-                ps.executeUpdate();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            jdbcTemplate.update(SQL, quantity, id.get());
         } else {
             String SQL = "INSERT INTO my_availability (item_id, store_id, aviable, matching_id, supplier_id, date) VALUES (?, ?, ?, NULL, ?, NOW())";
-            try (Connection c = db.c();
-                 PreparedStatement ps = c.prepareStatement(SQL)) {
-                ps.setString(1, code);
-                ps.setInt(2, merlionStoreId);
-                ps.setInt(3, quantity);
-                ps.setInt(4, merlionSupplierId);
-                ps.executeUpdate();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            jdbcTemplate.update(SQL, code, merlionStoreId, quantity, merlionSupplierId);
         }
     }
 
     public Optional<Boolean> alreadyInStock(String id, int merlionSupplierId) {
-        String SQL = "SELECT COUNT(*) > 0 AS cnt " +
+        String SQL =
+                "SELECT COUNT(*) > 0 AS cnt " +
                 "FROM my_availability " +
                 "WHERE item_id = ? " +
                 "AND aviable > 0 " +
                 "AND supplier_id != ?";
-
-        try (Connection c = db.c();
-              PreparedStatement ps = c.prepareStatement(SQL)) {
-
-            ps.setString(1, id);
-            ps.setInt(2, merlionSupplierId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next())
-                    return Optional.of(rs.getBoolean("cnt"));
-                else
-                    return Optional.empty();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try
+        {
+            return Optional.of(jdbcTemplate.queryForObject(SQL, Boolean.class, id, merlionSupplierId));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
         }
     }
 
     private Optional<Integer> getAvailabilityId(String code) {
         String SQL = "SELECT id FROM my_availability WHERE item_id = ? and supplier_id = ?";
-        try (Connection c = db.c();
-             PreparedStatement ps = c.prepareStatement(SQL)) {
-            ps.setString(1, code);
-            ps.setInt(2, merlionSupplierId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if(rs.next())
-                    return Optional.of(rs.getInt("id"));
-                else
-                    return Optional.empty();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try {
+            return Optional.of(jdbcTemplate.queryForObject(SQL, Integer.class, code, merlionSupplierId));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
         }
     }
 
-    private Item from(ResultSet rs) throws SQLException {
-        String name = String.format("[%s] %s", rs.getString("code"), rs.getString("name"));
-        return new Item(rs.getString("id"), "", rs.getString("article"), name, "");
+    private static class ItemMapper implements RowMapper<Item> {
+
+        @Override
+        public Item mapRow(ResultSet rs, int i) throws SQLException
+        {
+            String name = String.format("[%s] %s", rs.getString("code"), rs.getString("name"));
+            return new Item(rs.getString("id"), "", rs.getString("article"), name, "");
+        }
     }
 }

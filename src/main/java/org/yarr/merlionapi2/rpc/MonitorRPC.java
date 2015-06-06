@@ -1,11 +1,14 @@
 package org.yarr.merlionapi2.rpc;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.yarr.merlionapi2.MLPortProvider;
 import org.yarr.merlionapi2.persistence.Database;
 import org.yarr.merlionapi2.service.*;
 
+import javax.sql.DataSource;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -24,20 +27,20 @@ public class MonitorRPC
     private final CatalogService catalogService;
     private final TrackService trackService;
     private final BindService bindService;
-    private final Database db;
+    private final JdbcTemplate jdbcTemplate;
     private final MLPortProvider portProvider;
     private final RateService rateService;
     @Autowired
     public MonitorRPC(CatalogService catalogService,
                       TrackService trackService,
                       BindService bindService,
-                      Database database,
+                      DataSource dataSource,
                       MLPortProvider portProvider,
                       RateService rateService) {
         this.catalogService = catalogService;
         this.trackService = trackService;
         this.bindService = bindService;
-        this.db = database;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.portProvider = portProvider;
         this.rateService = rateService;
     }
@@ -47,13 +50,12 @@ public class MonitorRPC
     public Map<String, Object> status() {
         boolean dbAccessible = false;
         List<String> error = new ArrayList<>();
-        try(Connection con = db.c();
-            Statement stm = con.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT 1")) {
-            if(rs.next() && rs.getInt(1) == 1)
-                dbAccessible = true;
-        } catch (SQLException e) {
+        try
+        {
+            dbAccessible = jdbcTemplate.queryForObject("SELECT 1", Integer.class) == 1;
+        } catch (DataAccessException e) {
             error.add(e.getClass().getName() + ": " + e.getMessage());
+            dbAccessible = false;
         }
 
         String port = null;
