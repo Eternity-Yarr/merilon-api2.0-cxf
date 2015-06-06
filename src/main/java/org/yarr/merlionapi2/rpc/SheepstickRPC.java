@@ -6,20 +6,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yarr.merlionapi2.directory.ItemsRepository;
+import org.yarr.merlionapi2.model.Bond;
 import org.yarr.merlionapi2.model.StockAndItem;
 import org.yarr.merlionapi2.service.BindService;
 import org.yarr.merlionapi2.service.BitrixService;
+import org.yarr.merlionapi2.service.ConfigService;
 import org.yarr.merlionapi2.service.RateService;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Path("/rpc/sheep")
 @Produces(MediaType.APPLICATION_JSON)
@@ -32,17 +36,20 @@ public class SheepstickRPC
     private final BitrixService bitrixService;
     private final ItemsRepository itemsRepository;
     private final RateService rateService;
+    private final ConfigService configService;
 
     @Autowired
     public SheepstickRPC(
             BindService bindService,
             BitrixService bitrixService,
             ItemsRepository itemsRepository,
-            RateService rateService) {
+            RateService rateService,
+            ConfigService configService) {
         this.bindService = bindService;
         this.bitrixService = bitrixService;
         this.itemsRepository = itemsRepository;
         this.rateService = rateService;
+        this.configService = configService;
     }
 
     @GET
@@ -57,20 +64,20 @@ public class SheepstickRPC
                     acc.addAll(xs);
                     return acc;
                 })
-                .stream()
+                .stream().filter(b -> !b.id().equals("-1"))
                 .forEach(b -> {
-                    try
-                    {
+                    try {
                         StockAndItem si = itemsRepository.get(b);
-                        if (si.stock() != null)
-                        {
+                        if (si.stock() != null) {
                             bitrixService.setQuantityById(b.id(), si.stock().available());
                             bitrixService.getPriceById(b.id())
-                                    .ifPresent(currentPrice -> {
-                                        if (rateService.usd2rub(si.stock().price()) < currentPrice) {
-                                            log.warn("Price for %s is lower than purchase price %s", si, currentPrice);
-                                        }
-                                    });
+                                    .ifPresent(currentPrice ->
+                                            bitrixService.alreadyInStock(si.id(), configService.merlionSupplierId())
+                                                    .ifPresent(inStock -> {
+                                                        if (!inStock && rateService.usd2rub(si.stock().price()) < currentPrice) {
+                                                            log.warn("Price for %s is lower than purchase price %s", si, currentPrice);
+                                                        }
+                                                    }));
                         } else {
                             bitrixService.setQuantityById(b.id(), 0);
                         }
