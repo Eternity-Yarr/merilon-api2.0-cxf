@@ -17,13 +17,12 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 @Path("/rpc/sheep")
 @Produces(MediaType.APPLICATION_JSON)
@@ -55,54 +54,19 @@ public class SheepstickRPC
     @GET
     @Path("/fullUpdate")
     public Map<String, String> fullUpdate() {
-        Stopwatch s = Stopwatch.createStarted();
-        Map<String, String> response = new HashMap<>();
-
-        bindService.all().bonds().values()
-                .stream()
-                .reduce(new HashSet<>(), (acc, xs) -> {
-                    acc.addAll(xs);
-                    return acc;
-                })
-                .stream().filter(b -> !b.id().equals("-1"))
-                .forEach(b -> {
-                    try {
-                        StockAndItem si = itemsRepository.get(b);
-                        if (si.stock() != null) {
-                            bitrixService.setQuantityById(b.id(), si.stock().available());
-                            bitrixService.getPriceById(b.id())
-                                    .ifPresent(currentPrice ->
-                                            bitrixService.alreadyInStock(si.id(), configService.merlionSupplierId())
-                                                    .ifPresent(inStock -> {
-                                                        long merlionPrice = (long) Math.ceil(rateService.usd2rub(si.stock().price()));
-
-                                                        if (!inStock && currentPrice < merlionPrice) {
-                                                            merlionPrice +=
-                                                                    (long)(Math.ceil(merlionPrice * configService.valudeAddedPercent() / 100.0));
-                                                            log.warn("Setting new price for %s: %s, old price: %s", si, merlionPrice, currentPrice);
-                                                            bitrixService.setPriceById(b.id(), merlionPrice);
-                                                        }
-                                                    }));
-                        } else {
-                            bitrixService.setQuantityById(b.id(), 0);
-                        }
-
-                    } catch (ExecutionException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-
-
-        response.put("Elapsed time", String.valueOf(s.elapsed(TimeUnit.SECONDS)) + " s");
-        return response;
+        return update(bitrixService::setQuantityById);
     }
 
     @GET
     @Path("/nightUpdate")
     public Map<String, String> partialUpdate() {
-        Map<String, String> response = new HashMap<>();
-
-        return response;
+        return update((String id, int stock) ->
+                bitrixService
+                    .getQuantityById(id)
+                    .ifPresent(quantity -> {
+                        if (quantity > stock)
+                            bitrixService.setQuantityById(id, stock);
+                    }));
     }
 
     @GET
@@ -111,5 +75,59 @@ public class SheepstickRPC
         Map<String, String> response = new HashMap<>();
 
         return response;
+    }
+
+    private Map<String, String> update(StockSynchronizationStrategy stockSynchronizationStrategy) {
+        Stopwatch s = Stopwatch.createStarted();
+        Map<String, String> response = new HashMap<>();
+        bindService.all().bonds().values()
+                .stream().reduce(new HashSet<>(), (acc, xs) -> {
+                    acc.addAll(xs);
+                    return acc;
+                })
+                .stream().filter(b -> !b.id().equals("-1"))
+                .forEach(synchronizeStock(stockSynchronizationStrategy));
+        response.put("Elapsed time", String.valueOf(s.elapsed(TimeUnit.SECONDS)) + " s");
+        return response;
+    }
+
+    private Consumer<Bond> synchronizeStock(StockSynchronizationStrategy stockSynchronizationStrategy)
+    {
+        return b -> {
+            try {
+                StockAndItem si = itemsRepository.get(b);
+                if (si.stock() != null) {
+                    stockSynchronizationStrategy.operation(b.id(), si.stock().available());
+                    bitrixService
+                            .getPriceById(b.id())
+                            .ifPresent(compareAndSetPrice(b, si));
+                } else {
+                    bitrixService.setQuantityById(b.id(), 0);
+                }
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    private Consumer<Long> compareAndSetPrice(Bond b, StockAndItem si)
+    {
+        return currentPrice ->
+                bitrixService.alreadyInStock(si.id(), configService.merlionSupplierId())
+                        .ifPresent(inStock -> {
+                            long merlionPrice = (long) Math.ceil(rateService.usd2rub(si.stock().price()));
+
+                            if (!inStock && currentPrice < merlionPrice) {
+                                merlionPrice +=
+                                        (long)(Math.ceil(merlionPrice * configService.valudeAddedPercent() / 100.0));
+                                log.warn("Setting new price for %s: %s, old price: %s", si, merlionPrice, currentPrice);
+                                bitrixService.setPriceById(b.id(), merlionPrice);
+                            }
+                        });
+    }
+
+    private interface StockSynchronizationStrategy
+    {
+        void operation(String id, int stock);
     }
 }
