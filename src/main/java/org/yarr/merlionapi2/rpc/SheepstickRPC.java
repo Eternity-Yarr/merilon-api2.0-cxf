@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @Path("/rpc/sheep")
@@ -60,13 +61,13 @@ public class SheepstickRPC
     @GET
     @Path("/nightUpdate")
     public Map<String, String> partialUpdate() {
-        return update((String id, int stock) ->
+        return update((String id, Integer stock) ->
                 bitrixService
-                    .getQuantityById(id)
-                    .ifPresent(quantity -> {
-                        if (quantity > stock)
-                            bitrixService.setQuantityById(id, stock);
-                    }));
+                        .getQuantityById(id)
+                        .ifPresent(quantity -> {
+                            if (quantity > stock)
+                                bitrixService.setQuantityById(id, stock);
+                        }));
     }
 
     @GET
@@ -77,27 +78,27 @@ public class SheepstickRPC
         return response;
     }
 
-    private Map<String, String> update(StockSynchronizationStrategy stockSynchronizationStrategy) {
+    private Map<String, String> update(BiConsumer<String, Integer> stockSynchronizationStrategy) {
         Stopwatch s = Stopwatch.createStarted();
         Map<String, String> response = new HashMap<>();
         bindService.all().bonds().values()
                 .stream().reduce(new HashSet<>(), (acc, xs) -> {
-                    acc.addAll(xs);
-                    return acc;
-                })
+            acc.addAll(xs);
+            return acc;
+        })
                 .stream().filter(b -> !b.id().equals("-1"))
                 .forEach(synchronizeStock(stockSynchronizationStrategy));
         response.put("Elapsed time", String.valueOf(s.elapsed(TimeUnit.SECONDS)) + " s");
         return response;
     }
 
-    private Consumer<Bond> synchronizeStock(StockSynchronizationStrategy stockSynchronizationStrategy)
+    private Consumer<Bond> synchronizeStock(BiConsumer<String, Integer> stockSynchronizationStrategy)
     {
         return b -> {
             try {
                 StockAndItem si = itemsRepository.get(b);
                 if (si.stock() != null) {
-                    stockSynchronizationStrategy.operation(b.id(), si.stock().available());
+                    stockSynchronizationStrategy.accept(b.id(), si.stock().available());
                     bitrixService
                             .getPriceById(b.id())
                             .ifPresent(compareAndSetPrice(b, si));
@@ -124,10 +125,5 @@ public class SheepstickRPC
                                 bitrixService.setPriceById(b.id(), merlionPrice);
                             }
                         });
-    }
-
-    private interface StockSynchronizationStrategy
-    {
-        void operation(String id, int stock);
     }
 }
