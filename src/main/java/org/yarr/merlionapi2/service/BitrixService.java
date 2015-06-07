@@ -98,6 +98,16 @@ WHERE iblock_property_id = 200 AND bie.id = ?
         }
     }
 
+    public Optional<Integer> getQuantityById(String code) {
+        String SQL = "SELECT aviable FROM my_availability WHERE id = ?";
+
+        try {
+            return Optional.of(jdbcTemplate.queryForObject(SQL, Integer.class, code));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
     public Optional<Boolean> alreadyInStock(String id, int merlionSupplierId) {
         String SQL =
                 "SELECT COUNT(*) > 0 AS cnt " +

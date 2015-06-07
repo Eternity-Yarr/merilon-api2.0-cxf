@@ -55,6 +55,22 @@ public class SheepstickRPC
     @GET
     @Path("/fullUpdate")
     public Map<String, String> fullUpdate() {
+        return update(bitrixService::setQuantityById);
+    }
+
+    @GET
+    @Path("/nightUpdate")
+    public Map<String, String> partialUpdate() {
+        return update((String id, int stock) -> {
+            bitrixService.getQuantityById(id)
+                    .ifPresent(quantity -> {
+                        if (quantity > stock)
+                            bitrixService.setQuantityById(id, stock);
+                    });
+        });
+    }
+
+    private Map<String, String> update(LambdaUpdateStock lambdaUpdateStock) {
         Stopwatch s = Stopwatch.createStarted();
         Map<String, String> response = new HashMap<>();
 
@@ -69,7 +85,7 @@ public class SheepstickRPC
                     try {
                         StockAndItem si = itemsRepository.get(b);
                         if (si.stock() != null) {
-                            bitrixService.setQuantityById(b.id(), si.stock().available());
+                            lambdaUpdateStock.operation(b.id(), si.stock().available());
                             bitrixService.getPriceById(b.id())
                                     .ifPresent(currentPrice ->
                                             bitrixService.alreadyInStock(si.id(), configService.merlionSupplierId())
@@ -98,18 +114,14 @@ public class SheepstickRPC
     }
 
     @GET
-    @Path("/nightUpdate")
-    public Map<String, String> partialUpdate() {
-        Map<String, String> response = new HashMap<>();
-
-        return response;
-    }
-
-    @GET
     @Path("/priceCheck")
     public Map<String, String> priceCheck() {
         Map<String, String> response = new HashMap<>();
 
         return response;
+    }
+
+    private static interface LambdaUpdateStock {
+        public void operation(String id, int stock);
     }
 }
