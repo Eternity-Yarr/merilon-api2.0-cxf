@@ -62,46 +62,39 @@ public class SheepstickRPC
     @Path("/nightUpdate")
     public Map<String, String> partialUpdate() {
         return update((String id, Integer stock) ->
-                bitrixService
-                        .getQuantityById(id)
-                        .ifPresent(quantity -> {
-                            if (quantity > stock)
-                                bitrixService.setQuantityById(id, stock);
-                        }));
-    }
-
-    @GET
-    @Path("/priceCheck")
-    public Map<String, String> priceCheck() {
-        Map<String, String> response = new HashMap<>();
-
-        return response;
+            bitrixService
+                .getQuantityById(id)
+                .ifPresent(quantity -> {
+                    if (quantity > stock)
+                        bitrixService.setQuantityById(id, stock);
+                }));
     }
 
     private Map<String, String> update(BiConsumer<String, Integer> stockSynchronizationStrategy) {
         Stopwatch s = Stopwatch.createStarted();
         Map<String, String> response = new HashMap<>();
-        bindService.all().bonds().values()
-                .stream().reduce(new HashSet<>(), (acc, xs) -> {
-            acc.addAll(xs);
-            return acc;
-        })
-                .stream().filter(b -> !b.id().equals("-1"))
-                .forEach(synchronizeStock(stockSynchronizationStrategy));
+        bindService
+            .all().bonds().values()
+            .stream().reduce(new HashSet<>(), (acc, xs) -> {
+                acc.addAll(xs);
+                return acc;
+            })
+            .stream().filter(b -> !b.id().equals("-1"))
+            .forEach(synchronizeStock(stockSynchronizationStrategy));
         response.put("Elapsed time", String.valueOf(s.elapsed(TimeUnit.SECONDS)) + " s");
+
         return response;
     }
 
-    private Consumer<Bond> synchronizeStock(BiConsumer<String, Integer> stockSynchronizationStrategy)
-    {
+    private Consumer<Bond> synchronizeStock(BiConsumer<String, Integer> stockSynchronizationStrategy) {
         return b -> {
             try {
                 StockAndItem si = itemsRepository.get(b);
                 if (si.stock() != null) {
                     stockSynchronizationStrategy.accept(b.id(), si.stock().available());
                     bitrixService
-                            .getPriceById(b.id())
-                            .ifPresent(compareAndSetPrice(b, si));
+                        .getPriceById(b.id())
+                        .ifPresent(compareAndSetPrice(b, si));
                 } else {
                     bitrixService.setQuantityById(b.id(), 0);
                 }
@@ -111,19 +104,17 @@ public class SheepstickRPC
         };
     }
 
-    private Consumer<Long> compareAndSetPrice(Bond b, StockAndItem si)
-    {
+    private Consumer<Long> compareAndSetPrice(Bond b, StockAndItem si) {
         return currentPrice ->
-                bitrixService.alreadyInStock(si.id(), configService.merlionSupplierId())
-                        .ifPresent(inStock -> {
-                            long merlionPrice = (long) Math.ceil(rateService.usd2rub(si.stock().price()));
-
-                            if (!inStock && currentPrice < merlionPrice) {
-                                merlionPrice +=
-                                        (long)(Math.ceil(merlionPrice * configService.valudeAddedPercent() / 100.0));
-                                log.warn("Setting new price for %s: %s, old price: %s", si, merlionPrice, currentPrice);
-                                bitrixService.setPriceById(b.id(), merlionPrice);
-                            }
-                        });
+            bitrixService.alreadyInStock(si.id(), configService.merlionSupplierId())
+                .ifPresent(inStock -> {
+                    long merlionPrice = (long) Math.ceil(rateService.usd2rub(si.stock().price()));
+                    if (!inStock && currentPrice < merlionPrice) {
+                        merlionPrice +=
+                                (long)(Math.ceil(merlionPrice * configService.valudeAddedPercent() / 100.0));
+                        log.warn("Setting new price for %s: %s, old price: %s", si, merlionPrice, currentPrice);
+                        bitrixService.setPriceById(b.id(), merlionPrice);
+                    }
+                });
     }
 }
