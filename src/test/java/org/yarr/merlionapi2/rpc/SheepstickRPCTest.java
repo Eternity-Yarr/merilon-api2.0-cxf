@@ -11,6 +11,7 @@ import org.yarr.merlionapi2.service.BitrixService;
 import org.yarr.merlionapi2.service.ConfigService;
 import org.yarr.merlionapi2.service.RateService;
 
+import java.util.HashMap;
 import java.util.Optional;
 
 import static org.mockito.Matchers.*;
@@ -52,7 +53,7 @@ public class SheepstickRPCTest
         when(bs2.alreadyInStock(anyString(), eq(12345))).thenReturn(Optional.of(Boolean.FALSE));
         ArgumentCaptor<Long> priceCaptor = ArgumentCaptor.forClass(Long.class);
 
-        sheepstick.compareAndSetPrice(b, si).accept(60L);
+        sheepstick.compareAndSetPrice(new HashMap<>(), b, si).accept(60L);
 
         verify(bs2).setPriceById(anyString(), priceCaptor.capture());
         assertEquals(priceCaptor.getValue(), new Long(2625), "Price correctly set");
@@ -68,7 +69,7 @@ public class SheepstickRPCTest
 
         when(bs2.alreadyInStock(anyString(), eq(12345))).thenReturn(Optional.of(Boolean.TRUE));
 
-        sheepstick.compareAndSetPrice(b, si).accept(60L);
+        sheepstick.compareAndSetPrice(new HashMap<>(), b, si).accept(60L);
 
         verify(bs2, times(0)).setPriceById(anyString(), anyLong());
     }
