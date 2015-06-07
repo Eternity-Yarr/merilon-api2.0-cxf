@@ -35,8 +35,10 @@ public class SheepstickRPCTest
         cs = Mockito.mock(ConfigService.class);
         sheepstick = new SheepstickRPC(bs, bs2, ir, rs, cs);
         when(cs.merlionSupplierId()).thenReturn(12345);
+        when(cs.valudeAddedPercent()).thenReturn(5);
         when(rs.usd2rub(anyDouble())).thenAnswer(
                 inv -> (Double) inv.getArguments()[0] * 50);
+
     }
 
     @Test
@@ -53,7 +55,7 @@ public class SheepstickRPCTest
         sheepstick.compareAndSetPrice(b, si).accept(60L);
 
         verify(bs2).setPriceById(anyString(), priceCaptor.capture());
-        assertEquals(priceCaptor.getValue(), new Long(2500), "Price correctly set");
+        assertEquals(priceCaptor.getValue(), new Long(2625), "Price correctly set");
     }
 
     @Test
