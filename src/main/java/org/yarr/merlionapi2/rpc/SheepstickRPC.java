@@ -70,7 +70,7 @@ public class SheepstickRPC
                 }));
     }
 
-    private Map<String, String> update(BiConsumer<String, Integer> stockSynchronizationStrategy) {
+    Map<String, String> update(BiConsumer<String, Integer> stockSynchronizationStrategy) {
         Stopwatch s = Stopwatch.createStarted();
         Map<String, String> response = new HashMap<>();
         bindService
@@ -86,7 +86,7 @@ public class SheepstickRPC
         return response;
     }
 
-    private Consumer<Bond> synchronizeStock(BiConsumer<String, Integer> stockSynchronizationStrategy) {
+    Consumer<Bond> synchronizeStock(BiConsumer<String, Integer> stockSynchronizationStrategy) {
         return b -> {
             try {
                 StockAndItem si = itemsRepository.get(b);
@@ -104,7 +104,7 @@ public class SheepstickRPC
         };
     }
 
-    private Consumer<Long> compareAndSetPrice(Bond b, StockAndItem si) {
+    Consumer<Long> compareAndSetPrice(Bond b, StockAndItem si) {
         return currentPrice ->
             bitrixService.alreadyInStock(si.id(), configService.merlionSupplierId())
                 .ifPresent(inStock -> {
