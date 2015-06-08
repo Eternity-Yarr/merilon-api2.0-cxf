@@ -1,9 +1,10 @@
 package org.yarr.rates;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 
 /**
  * 04.08.2014 at 14:30
@@ -13,6 +14,7 @@ import java.net.URLConnection;
  */
 public class Rates
 {
+	final private static Logger log = LoggerFactory.getLogger(Rates.class);
 	final private static String URL = "http://www.cbr.ru/scripts/XML_daily.asp";
 	private CBRResponse cbr;
 
@@ -31,6 +33,8 @@ public class Rates
 
 	private String fetchPage() throws Exception
 	{
+		CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
+
 		String ret;
 		URLConnection con = new URL(URL).openConnection();
 		if (((HttpURLConnection)con).getResponseCode() == 200)
