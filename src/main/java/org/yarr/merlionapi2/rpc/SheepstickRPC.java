@@ -20,9 +20,11 @@ import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 @Path("/rpc/sheep")
@@ -61,16 +63,21 @@ public class SheepstickRPC
     @GET
     @Path("/nightUpdate")
     public Map<String, String> partialUpdate() {
-        return update((String id, Integer stock) ->
+        return update((String id, Integer stock) -> {
+            final Boolean[] result = {null};
+
             bitrixService
                 .getQuantityById(id)
                 .ifPresent(quantity -> {
                     if (quantity > stock)
-                        bitrixService.setQuantityById(id, stock);
-                }));
+                        result[0] = bitrixService.setQuantityById(id, stock);
+                });
+
+            return result[0];
+        });
     }
 
-    Map<String, String> update(BiConsumer<String, Integer> stockSynchronizationStrategy) {
+    Map<String, String> update(BiFunction<String, Integer, Boolean> stockSynchronizationStrategy) {
         Stopwatch s = Stopwatch.createStarted();
         Map<String, String> response = new HashMap<>();
         bindService
@@ -86,19 +93,28 @@ public class SheepstickRPC
         return response;
     }
 
-    Consumer<Bond> synchronizeStock(Map<String, String> response, BiConsumer<String, Integer> stockSynchronizationStrategy) {
+    Consumer<Bond> synchronizeStock(Map<String, String> response, BiFunction<String, Integer, Boolean> stockSynchronizationStrategy) {
         return b -> {
             try {
                 StockAndItem si = itemsRepository.get(b);
                 if (si.stock() != null) {
-                    response.put("Setting new quantity for item " + b.id(), Integer.toString(si.stock().available()));
-                    stockSynchronizationStrategy.accept(b.id(), si.stock().available());
+                    Optional.ofNullable(stockSynchronizationStrategy.apply(b.id(), si.stock().available()))
+                            .ifPresent(result -> {
+                                if (result)
+                                    updateLogs(response, "Inserted", b.id());
+                                else
+                                    updateLogs(response, "Updated", b.id());
+                            });
+
                     bitrixService
                         .getPriceById(b.id())
                         .ifPresent(compareAndSetPrice(response, b, si));
                 } else {
-                    response.put("Setting zero quantity for item", b.id());
-                    bitrixService.setQuantityById(b.id(), 0);
+                    boolean result = bitrixService.setQuantityById(b.id(), 0);
+                    if (result)
+                        updateLogs(response, "Inserted", b.id());
+                    else
+                        updateLogs(response, "Updated", b.id());
                 }
             } catch (ExecutionException e) {
                 throw new RuntimeException(e);
@@ -115,10 +131,19 @@ public class SheepstickRPC
                         merlionPrice +=
                                 (long) (Math.ceil(merlionPrice * configService.valudeAddedPercent() / 100.0));
                         log.warn("Setting new price for {}: {}, old price: {}", si, merlionPrice, currentPrice);
-                        response.put("Setting new price for item " + b.id() + ", old price " + currentPrice,
-                                Long.toString(merlionPrice));
+                        updateLogs(response, "New price", b.id());
                         bitrixService.setPriceById(b.id(), merlionPrice);
                     }
                 });
+    }
+
+    void updateLogs(Map<String, String> response, String key, String value) {
+        String current = response.get(key);
+
+        if (current == null) {
+            response.put(key, value);
+        } else {
+            response.put(key, current + "," + value);
+        }
     }
 }

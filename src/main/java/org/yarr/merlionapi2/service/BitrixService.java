@@ -87,14 +87,20 @@ WHERE iblock_property_id = 200 AND bie.id = ?
         jdbcTemplate.update(SQL, price, code);
     }
 
-    public void setQuantityById(String code, int quantity) {
+    /**
+     * Set item quantity
+     * @return true if inserted new item, false if updated the old one
+     */
+    public boolean setQuantityById(String code, int quantity) {
         Optional<Integer> id = getAvailabilityId(code);
         if(id.isPresent()) {
             String SQL = "UPDATE my_availability SET aviable = ?, date = NOW() WHERE id = ?";
             jdbcTemplate.update(SQL, quantity, id.get());
+            return false;
         } else {
             String SQL = "INSERT INTO my_availability (item_id, store_id, aviable, matching_id, supplier_id, date) VALUES (?, ?, ?, NULL, ?, NOW())";
             jdbcTemplate.update(SQL, code, merlionStoreId, quantity, merlionSupplierId);
+            return true;
         }
     }
 
