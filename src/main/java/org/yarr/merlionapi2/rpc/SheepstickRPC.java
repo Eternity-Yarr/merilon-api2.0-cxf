@@ -129,16 +129,15 @@ public class SheepstickRPC
                     long merlionPrice = 0;
                     try {
                         merlionPrice = (long) Math.ceil(rateService.usd2rub(si.stock().price()));
-                    } catch (Exception e) {
+                        if (!inStock && currentPrice < merlionPrice) {
+                            merlionPrice +=
+                                    (long) (Math.ceil(merlionPrice * configService.valudeAddedPercent() / 100.0));
+                            log.warn("Setting new price for {}: {}, old price: {}", si, merlionPrice, currentPrice);
+                            updateLogs(response, "New price", b.id());
+                            bitrixService.setPriceById(b.id(), merlionPrice);
+                        }
+                    } catch (RuntimeException e) {
                         updateLogs(response, "Currency error", b.id());
-                        return;
-                    }
-                    if (!inStock && currentPrice < merlionPrice) {
-                        merlionPrice +=
-                                (long) (Math.ceil(merlionPrice * configService.valudeAddedPercent() / 100.0));
-                        log.warn("Setting new price for {}: {}, old price: {}", si, merlionPrice, currentPrice);
-                        updateLogs(response, "New price", b.id());
-                        bitrixService.setPriceById(b.id(), merlionPrice);
                     }
                 });
     }
