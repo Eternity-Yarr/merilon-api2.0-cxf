@@ -126,7 +126,12 @@ public class SheepstickRPC
         return currentPrice ->
             bitrixService.alreadyInStock(si.id(), configService.merlionSupplierId())
                 .ifPresent(inStock -> {
-                    long merlionPrice = (long) Math.ceil(rateService.usd2rub(si.stock().price()));
+                    long merlionPrice = 0;
+                    try {
+                        merlionPrice = (long) Math.ceil(rateService.usd2rub(si.stock().price()));
+                    } catch (Exception e) {
+                        updateLogs(response, "Currency error", b.id());
+                    }
                     if (!inStock && currentPrice < merlionPrice) {
                         merlionPrice +=
                                 (long) (Math.ceil(merlionPrice * configService.valudeAddedPercent() / 100.0));
