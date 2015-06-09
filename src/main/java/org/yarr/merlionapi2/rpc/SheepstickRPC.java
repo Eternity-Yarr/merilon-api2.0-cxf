@@ -17,15 +17,13 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Path("/rpc/sheep")
 @Produces(MediaType.APPLICATION_JSON)
@@ -80,13 +78,9 @@ public class SheepstickRPC
     Map<String, String> update(BiFunction<String, Integer, Boolean> stockSynchronizationStrategy) {
         Stopwatch s = Stopwatch.createStarted();
         Map<String, String> response = new HashMap<>();
-        bindService
-            .all().bonds().values()
-            .stream().reduce(new HashSet<>(), (acc, xs) -> {
-                acc.addAll(xs);
-                return acc;
-            })
-            .stream().filter(b -> !b.id().equals("-1"))
+        bindService.all().bonds().values().stream()
+            .flatMap(Collection::stream)
+            .filter(b -> !b.id().equals("-1"))
             .forEach(synchronizeStock(response, stockSynchronizationStrategy));
         response.put("Elapsed time", String.valueOf(s.elapsed(TimeUnit.SECONDS)) + " s");
 
