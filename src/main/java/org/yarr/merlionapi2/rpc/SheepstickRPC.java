@@ -131,6 +131,7 @@ public class SheepstickRPC
                         merlionPrice = (long) Math.ceil(rateService.usd2rub(si.stock().price()));
                     } catch (Exception e) {
                         updateLogs(response, "Currency error", b.id());
+                        return;
                     }
                     if (!inStock && currentPrice < merlionPrice) {
                         merlionPrice +=
