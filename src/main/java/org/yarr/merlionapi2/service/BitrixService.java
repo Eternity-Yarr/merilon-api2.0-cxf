@@ -52,18 +52,18 @@ WHERE iblock_property_id = 200 AND biep.VALUE = ?
 
     public Optional<Item> getById(String id) {
 /*
-SELECT bie.id, bie.name, bie.searchable_content, biep.value as code, article.value as article FROM b_iblock_element_property biep
+SELECT bie.id, bie.name, bie.searchable_content, '-' as code, article.value as article FROM b_iblock_element_property biep
 LEFT JOIN b_iblock_element bie ON biep.iblock_element_id = bie.id
 LEFT JOIN (SELECT iblock_element_id as id, value FROM b_iblock_element_property WHERE iblock_property_id = 4) article
 ON  article.id = biep.iblock_element_id
-WHERE iblock_property_id = 200 AND bie.id = ?
+WHERE bie.id = ? GROUP BY bie.id
  */
         String SQL =
                 "SELECT bie.id, bie.name, bie.searchable_content, '-' as code, article.value as article FROM b_iblock_element_property biep\n" +
                 "LEFT JOIN b_iblock_element bie ON biep.iblock_element_id = bie.id\n" +
                 "LEFT JOIN (SELECT iblock_element_id as id, value FROM b_iblock_element_property WHERE iblock_property_id = 4) article\n" +
                 "ON  article.id = biep.iblock_element_id\n" +
-                "WHERE bie.id = ?\n";
+                "WHERE bie.id = ? GROUP BY bie.id";
         try {
             return Optional.of(jdbcTemplate.queryForObject(SQL, new ItemMapper(), id));
         } catch (EmptyResultDataAccessException e) {
