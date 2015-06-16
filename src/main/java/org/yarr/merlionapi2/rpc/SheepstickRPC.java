@@ -100,9 +100,10 @@ public class SheepstickRPC
                                     updateLogs(response, "Updated", b.id());
                             });
 
-                    bitrixService
-                        .getPriceById(b.id())
-                        .ifPresent(compareAndSetPrice(response, b, si));
+                    if (si.stock().available() > 0)
+                        bitrixService
+                            .getPriceById(b.id())
+                            .ifPresent(compareAndSetPrice(response, b, si));
                 } else {
                     boolean result = bitrixService.setQuantityById(b.id(), 0);
                     if (result)
