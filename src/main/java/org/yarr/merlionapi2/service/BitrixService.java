@@ -133,7 +133,7 @@ WHERE bie.id = ? GROUP BY bie.id
     }
 
     private Optional<Integer> getAvailabilityId(String code) {
-        log.debug("Getting availability for item_id={} and supplier_id={}", code, merlionSupplierId);
+        log.trace("Getting availability for item_id={} and supplier_id={}", code, merlionSupplierId);
         String SQL = "SELECT id FROM my_availability WHERE item_id = ? and supplier_id = ?";
         try {
             return Optional.of(jdbcTemplate.queryForObject(SQL, Integer.class, code, merlionSupplierId));
