@@ -18,8 +18,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -31,6 +30,7 @@ import java.util.function.Function;
 public class SheepstickRPC
 {
     private final static Logger log = LoggerFactory.getLogger(SheepstickRPC.class);
+    private final ExecutorService es = Executors.newSingleThreadExecutor();
 
     private final BindService bindService;
     private final BitrixService bitrixService;
@@ -54,25 +54,27 @@ public class SheepstickRPC
 
     @GET
     @Path("/fullUpdate")
-    public Map<String, String> fullUpdate() {
-        return update(bitrixService::setQuantityById);
+    public Map<String, String> fullUpdate() throws InterruptedException, ExecutionException {
+        Future<Map<String, String>> result = es.submit(() -> update(bitrixService::setQuantityById));
+        return result.get();
     }
 
     @GET
     @Path("/nightUpdate")
-    public Map<String, String> partialUpdate() {
-        return update((String id, Integer stock) -> {
+    public Map<String, String> partialUpdate() throws InterruptedException, ExecutionException {
+        BiFunction<String, Integer, Boolean> nightStrategy = (String id, Integer stock) -> {
             final Boolean[] result = {null};
-
             bitrixService
-                .getQuantityById(id)
-                .ifPresent(quantity -> {
-                    if (quantity > stock)
-                        result[0] = bitrixService.setQuantityById(id, stock);
-                });
+                    .getQuantityById(id)
+                    .ifPresent(quantity -> {
+                        if (quantity > stock)
+                            result[0] = bitrixService.setQuantityById(id, stock);
+                    });
 
             return result[0];
-        });
+        };
+        Future<Map<String, String>> result = es.submit(() -> update(nightStrategy));
+        return result.get();
     }
 
     Map<String, String> update(BiFunction<String, Integer, Boolean> stockSynchronizationStrategy) {

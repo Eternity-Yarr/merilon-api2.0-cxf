@@ -1,6 +1,8 @@
 package org.yarr.merlionapi2.service;
 
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,6 +18,7 @@ import java.util.Optional;
 @Service
 public class BitrixService
 {
+    private final static Logger log = LoggerFactory.getLogger(BitrixService.class);
     private final int merlionSupplierId;
     private final int merlionStoreId;
     private final JdbcTemplate jdbcTemplate;
@@ -130,6 +133,7 @@ WHERE bie.id = ? GROUP BY bie.id
     }
 
     private Optional<Integer> getAvailabilityId(String code) {
+        log.debug("Getting availability for item_id={} and supplier_id={}", code, merlionSupplierId);
         String SQL = "SELECT id FROM my_availability WHERE item_id = ? and supplier_id = ?";
         try {
             return Optional.of(jdbcTemplate.queryForObject(SQL, Integer.class, code, merlionSupplierId));
