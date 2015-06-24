@@ -93,6 +93,11 @@ public class SheepstickRPC
         return b -> {
             try {
                 StockAndItem si = itemsRepository.get(b);
+                if (si == null) {
+                    log.info("Bond {} is obsolete, no such item in merlion found", b);
+                    return;
+                }
+
                 if (si.stock() != null) {
                     Optional.ofNullable(stockSynchronizationStrategy.apply(b.id(), si.stock().available()))
                             .ifPresent(result -> {
