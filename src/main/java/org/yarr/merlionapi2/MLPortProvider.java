@@ -2,6 +2,10 @@ package org.yarr.merlionapi2;
 
 import https.api_merlion_com.dl.mlservice2.MLPort;
 import https.api_merlion_com.dl.mlservice2.MLService;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.frontend.ClientProxy;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
+import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +49,10 @@ public class MLPortProvider
         {
             MLService service = new MLService();
             port = service.getMLPort();
+            Client client  = ClientProxy.getClient(port);
+            client.getInInterceptors().add(new LoggingInInterceptor());
+            client.getOutInterceptors().add(new LoggingOutInterceptor());
+
             Map<String, Object> rc = ((BindingProvider) port).getRequestContext();
             rc.put(BindingProvider.USERNAME_PROPERTY, LOGIN);
             rc.put(BindingProvider.PASSWORD_PROPERTY, PASSWORD);
