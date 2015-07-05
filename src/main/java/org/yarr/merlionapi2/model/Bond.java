@@ -47,18 +47,14 @@ public class Bond
 
         Bond bond = (Bond) o;
 
-        if (!catId.equals(bond.catId)) return false;
-        if (!merlionId.equals(bond.merlionId)) return false;
+        return merlionId.equals(bond.merlionId);
 
-        return true;
     }
 
     @Override
     public int hashCode()
     {
-        int result = merlionId.hashCode();
-        result = 31 * result + catId.hashCode();
-        return result;
+        return merlionId.hashCode();
     }
 
     @Override
