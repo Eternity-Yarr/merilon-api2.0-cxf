@@ -5,6 +5,7 @@ out/
 config/
 target/
 data/
+logs/
 deploy.sh
 config.json
 hs*.log

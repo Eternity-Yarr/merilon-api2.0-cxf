@@ -17,7 +17,7 @@ public class MLPortProviderTest extends AbstractTestNGSpringContextTests {
     @Autowired
     private MLPortProvider mlPortProvider;
 
-    @Test
+    @Test(enabled = false) // integration suite should be made separately
     public void test() {
         List<CatalogResult> resultList = mlPortProvider.get().getCatalog("B10202").getItem();
         Assert.assertTrue(resultList.size() > 0);
