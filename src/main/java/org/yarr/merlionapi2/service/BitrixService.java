@@ -95,7 +95,7 @@ WHERE bie.id = ? GROUP BY bie.id
      * @return true if inserted new item, false if updated the old one
      */
     public boolean setQuantityById(String code, int quantity) {
-        Optional<Integer> id = getAvailabilityId(code);
+        Optional<Long> id = getAvailabilityId(code);
         if(id.isPresent()) {
             String SQL = "UPDATE my_availability SET aviable = ?, date = NOW() WHERE id = ?";
             jdbcTemplate.update(SQL, quantity, id.get());
@@ -132,11 +132,11 @@ WHERE bie.id = ? GROUP BY bie.id
         }
     }
 
-    private Optional<Integer> getAvailabilityId(String code) {
+    private Optional<Long> getAvailabilityId(String code) {
         log.trace("Getting availability for item_id={} and supplier_id={}", code, merlionSupplierId);
         String SQL = "SELECT id FROM my_availability WHERE item_id = ? and supplier_id = ?";
         try {
-            return Optional.of(jdbcTemplate.queryForObject(SQL, Integer.class, code, merlionSupplierId));
+            return Optional.of(jdbcTemplate.queryForObject(SQL, Long.class, code, merlionSupplierId));
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
