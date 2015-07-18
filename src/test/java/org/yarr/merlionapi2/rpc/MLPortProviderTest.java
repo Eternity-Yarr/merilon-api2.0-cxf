@@ -1,6 +1,6 @@
 package org.yarr.merlionapi2.rpc;
 
-import https.api_merlion_com.dl.mlservice2.CatalogResult;
+import https.api_merlion_com.dl.mlservice3.CatalogResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;

@@ -1,7 +1,7 @@
 package org.yarr.merlionapi2;
 
-import https.api_merlion_com.dl.mlservice2.MLPort;
-import https.api_merlion_com.dl.mlservice2.MLService;
+import https.api_merlion_com.dl.mlservice3.MLPort;
+import https.api_merlion_com.dl.mlservice3.MLService;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.interceptor.LoggingInInterceptor;

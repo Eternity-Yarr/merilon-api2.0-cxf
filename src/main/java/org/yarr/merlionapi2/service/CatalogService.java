@@ -3,7 +3,7 @@ package org.yarr.merlionapi2.service;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.RateLimiter;
-import https.api_merlion_com.dl.mlservice2.ArrayOfCatalogResult;
+import https.api_merlion_com.dl.mlservice3.ArrayOfCatalogResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

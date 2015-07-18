@@ -169,8 +169,8 @@
                             <sourceRoot>${project.build.directory}/generated-sources/cxf</sourceRoot>
                             <wsdlOptions>
                                 <wsdlOption>
-                                    <wsdl>${project.basedir}/src/main/resources/wsdl/mlservice2.wsdl</wsdl>
-                                    <wsdlLocation>classpath:wsdl/mlservice2.wsdl</wsdlLocation>
+                                    <wsdl>${project.basedir}/src/main/resources/wsdl/mlservice3.wsdl</wsdl>
+                                    <wsdlLocation>classpath:wsdl/mlservice3.wsdl</wsdlLocation>
                                 </wsdlOption>
                             </wsdlOptions>
                         </configuration>

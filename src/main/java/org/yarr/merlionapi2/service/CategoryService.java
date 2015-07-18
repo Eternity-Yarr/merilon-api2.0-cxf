@@ -4,11 +4,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.RateLimiter;
-import https.api_merlion_com.dl.mlservice2.ArrayOfItemsAvailResult;
-import https.api_merlion_com.dl.mlservice2.ArrayOfItemsResult;
-import https.api_merlion_com.dl.mlservice2.ItemsAvailResult;
-import https.api_merlion_com.dl.mlservice2.ItemsResult;
-import javafx.util.Pair;
+import https.api_merlion_com.dl.mlservice3.ArrayOfItemsAvailResult;
+import https.api_merlion_com.dl.mlservice3.ArrayOfItemsResult;
+import https.api_merlion_com.dl.mlservice3.ArrayOfString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -90,7 +87,10 @@ public class CategoryService
         {
             double throttle = getItemsLimiter.acquire();
             log.debug("Waited {} seconds for getItems for catId={} rate limit", throttle, catId);
-            ArrayOfItemsResult result = portProvider.get().getItems(catId, "", "1", 0, 10000);
+            ArrayOfString ids = new ArrayOfString();
+            //TODO:
+            ids.getItem().add("815234");
+            ArrayOfItemsResult result = portProvider.get().getItems(catId, ids, "ДОСТАВКА", 0, 10000, "");
             return result.getItem()
                     .parallelStream()
                     .filter(ir -> ir.getNo() != null)
@@ -119,7 +119,10 @@ public class CategoryService
         {
             double throttle = getItemsAvailLimiter.acquire();
             log.debug("Waited {} seconds for rate limit", throttle);
-            ArrayOfItemsAvailResult availResult = portProvider.get().getItemsAvail(catId, "ДОСТАВКА", "06-05-15", "true", "");
+            ArrayOfString ids = new ArrayOfString();
+            //TODO:
+            ids.getItem().add("123133");
+            ArrayOfItemsAvailResult availResult = portProvider.get().getItemsAvail(catId, "ДОСТАВКА", "06-05-15", "true", ids);
             return availResult.getItem()
                     .parallelStream()
                     .filter(ia -> ia.getNo() != null)
