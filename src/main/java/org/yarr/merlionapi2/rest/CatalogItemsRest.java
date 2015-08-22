@@ -3,13 +3,18 @@ package org.yarr.merlionapi2.rest;
 import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.yarr.merlionapi2.model.*;
+import org.yarr.merlionapi2.model.Category;
+import org.yarr.merlionapi2.model.Stock;
+import org.yarr.merlionapi2.model.StockAndItem;
 import org.yarr.merlionapi2.service.BindService;
 import org.yarr.merlionapi2.service.CatalogService;
 import org.yarr.merlionapi2.service.CategoryService;
 import org.yarr.merlionapi2.service.TrackService;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +53,8 @@ public class CatalogItemsRest
     @Path("/")
     public List<StockAndItem> all() {
         List<StockAndItem> items = new ArrayList<>();
-        for(CatalogNode cn  : trackService.all().nodes().values())
-            items.addAll(getItems(cn.id()));
+        for(String cn  : trackService.all().nodes())
+            items.addAll(getItems(cn));
         return items;
     }
 

@@ -5,22 +5,17 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.yarr.merlionapi2.directory.Catalog;
 import org.yarr.merlionapi2.model.CatalogNode;
 import org.yarr.merlionapi2.model.TrackedNodes;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.HashSet;
 
 @Service
 public class TrackService
 {
     private final Logger log = LoggerFactory.getLogger(TrackService.class);
-    private final static String STORAGE = "./data/tracked_catalogs.json";
+    private final static String STORAGE = "./data/tracked_catalog_ids.json";
     private final static ObjectMapper mapper = new ObjectMapper();
 
     private TrackedNodes trackedNodes = get();
@@ -40,7 +35,7 @@ public class TrackService
             log.debug("Exception trace", e);
             if (trackedNodes == null) {
                 log.debug("Replacing with empty list instead");
-                trackedNodes = new TrackedNodes(new HashMap<>());
+                trackedNodes = new TrackedNodes(new HashSet<>());
             }
         }
         return trackedNodes;
@@ -65,15 +60,11 @@ public class TrackService
     }
 
     public boolean tracked(String nodeId) {
-        return trackedNodes.nodes().values()
-                .stream()
-                .filter(n -> n.id().equals(nodeId))
-                .findAny()
-                .isPresent();
+        return trackedNodes.nodes().contains(nodeId);
     }
 
     public CatalogNode track(CatalogNode node) {
-        trackedNodes.nodes().put(node.id(), node);
+        trackedNodes.nodes().add(node.id());
         update();
         return node;
     }

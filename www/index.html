@@ -309,7 +309,11 @@
                 var mlCatalogs = new MLCatalogs();
                 var tracks = new Tracks();
                 $.when(mlCatalogs.fetch(), tracks.fetch()).done(function() {
-                    that.$el.html(that.template({mlCatalogs: mlCatalogs.models, tracks: tracks.models[0].attributes}));
+                    var trackMap = {};
+                    tracks.models[0].attributes.nodes.forEach(function(el){
+                        trackMap[el] = true;
+                    });
+                    that.$el.html(that.template({mlCatalogs: mlCatalogs.models, tracks: trackMap}));
                 });
             },
             events: {

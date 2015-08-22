@@ -8,7 +8,6 @@ import org.yarr.merlionapi2.service.TrackService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.Map;
 
 @Path("/track")
 @Produces(MediaType.APPLICATION_JSON)
@@ -24,8 +23,8 @@ public class TrackRest
     }
 
     @GET @Path("/")
-    public Map<String, CatalogNode> list() {
-      return service.all().nodes();
+    public TrackedNodes list() {
+      return new TrackedNodes(service.all().nodes());
     }
 
     @PUT @Path("/{id}")

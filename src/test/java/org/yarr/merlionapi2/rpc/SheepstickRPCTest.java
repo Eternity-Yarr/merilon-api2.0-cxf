@@ -1,5 +1,8 @@
 package org.yarr.merlionapi2.rpc;
 
+import org.apache.commons.io.FileUtils;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.testng.annotations.BeforeClass;
@@ -11,8 +14,12 @@ import org.yarr.merlionapi2.service.BitrixService;
 import org.yarr.merlionapi2.service.ConfigService;
 import org.yarr.merlionapi2.service.RateService;
 
+import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -40,6 +47,22 @@ public class SheepstickRPCTest
         when(rs.usd2rub(anyDouble())).thenAnswer(
                 inv -> (Double) inv.getArguments()[0] * 50);
 
+    }
+
+    @Test(enabled = false)
+    public void convert()  throws Exception{
+
+        File f = new File("./data/tracked_catalogs.json");
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jn  = mapper.readTree(f);
+        List<JsonNode> ids = jn.findValues("id");
+        Set<String> set = ids.stream()
+                .map(JsonNode::getTextValue)
+                .collect(Collectors.toSet());
+        String json = mapper
+                .writerWithDefaultPrettyPrinter()
+                .writeValueAsString(new TrackedNodes(set));
+        FileUtils.writeStringToFile(new File("./data/tracked_catalog_ids.json"), json);
     }
 
     @Test

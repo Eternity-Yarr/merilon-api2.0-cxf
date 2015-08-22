@@ -31,8 +31,8 @@ public class ItemRest
     @Path("/{merlionId}")
     public Item get(@PathParam("merlionId") String merlionId) {
         return trackService.all().nodes()
-                .values().stream()
-                .map(ts -> categoryService.category(ts.id()).all())
+                .stream()
+                .map(ts -> categoryService.category(ts).all())
                 .reduce(
                     new ArrayList<>(),
                     (acc, list) -> {
