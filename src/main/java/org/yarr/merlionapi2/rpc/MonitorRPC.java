@@ -5,7 +5,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.yarr.merlionapi2.MLPortProvider;
-import org.yarr.merlionapi2.persistence.Database;
 import org.yarr.merlionapi2.service.*;
 
 import javax.sql.DataSource;
@@ -13,10 +12,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.*;
 
 @Path("/rpc/monitor")

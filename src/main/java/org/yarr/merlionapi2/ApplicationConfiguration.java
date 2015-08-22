@@ -1,12 +1,10 @@
 package org.yarr.merlionapi2;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.yarr.merlionapi2.model.Config;
 import org.yarr.merlionapi2.service.ConfigService;
 
 import javax.sql.DataSource;

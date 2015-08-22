@@ -31,7 +31,7 @@ public class MLPortProviderTest extends AbstractTestNGSpringContextTests {
         ArrayOfString ids = new ArrayOfString();
         ids.getItem().add("931772");
         ids.getItem().add("931786");
-        List<ItemsAvailResult>  itemsAvail = mlPortProvider.get().getItemsAvail("", "ДОСТАВКА", "06-05-15", "", ids).getItem();
+        List<ItemsAvailResult>  itemsAvail = mlPortProvider.get().getItemsAvail("", "ДОСТАВКА", "", "", ids).getItem();
         List<ItemsResult> items = mlPortProvider.get().getItems("", ids, "ДОСТАВКА", 0, 10000, "").getItem();
         Assert.assertTrue(itemsAvail.size() == 2);
         Assert.assertTrue(items.size() == 2);
