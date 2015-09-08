@@ -10,8 +10,10 @@ import org.yarr.merlionapi2.model.*;
 import org.yarr.merlionapi2.service.CatalogService;
 import org.yarr.merlionapi2.service.CategoryService;
 
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemsRepository
@@ -46,13 +48,17 @@ public class ItemsRepository
 
     public StockAndItem get(Bond bond) throws ExecutionException {
         StockAndItem si = items.getIfPresent(bond.merlionId());
-        if(si == null)
-        {
+        if(si == null) {
             CatalogNode cn = catalogService.get().nodes().get(bond.catId());
             categoryService.category(cn).all().forEach(this::update);
-            categoryService.stock(cn).all().forEach(this::update);
+            Set<String> ids = categoryService.category(cn).all().stream().map(Item::id).collect(Collectors.toSet());
+            categoryService.stock(cn, ids).all().forEach(this::update);
             si = items.getIfPresent(bond.merlionId());
         }
+
+        //TODO: cleanup obsoletes?
+        if (si == null)
+            log.debug("No matching merlion item found for bond {}, it's most likely obsolete", bond);
 
         return si;
     }

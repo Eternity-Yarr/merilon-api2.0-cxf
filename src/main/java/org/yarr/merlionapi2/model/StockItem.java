@@ -7,12 +7,12 @@ import org.codehaus.jackson.annotate.JsonPropertyOrder;
 @JsonPropertyOrder({"id", "price", "available"})
 public class StockItem
 {
-    private final double price;
+    private final long price;
     private final int available;
     private final String id;
 
     @JsonCreator
-    public StockItem(float price, int available, String id)
+    public StockItem(long price, int available, String id)
     {
         this.price = price;
         this.available = available;
@@ -20,7 +20,7 @@ public class StockItem
     }
 
     @JsonProperty
-    public double price() {
+    public long price() {
         return price;
     }
 

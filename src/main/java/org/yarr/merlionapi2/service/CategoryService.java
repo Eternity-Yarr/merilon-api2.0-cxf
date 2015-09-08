@@ -7,6 +7,7 @@ import com.google.common.util.concurrent.RateLimiter;
 import https.api_merlion_com.dl.mlservice3.ArrayOfItemsAvailResult;
 import https.api_merlion_com.dl.mlservice3.ArrayOfItemsResult;
 import https.api_merlion_com.dl.mlservice3.ArrayOfString;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,7 @@ import org.springframework.stereotype.Service;
 import org.yarr.merlionapi2.MLPortProvider;
 import org.yarr.merlionapi2.model.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -58,10 +58,10 @@ public class CategoryService
         }
     }
 
-    public Stock stock(CatalogNode catalog) {
+    public Stock stock(CatalogNode catalog, Set<String> ids) {
         try
         {
-            return stockCache.get(catalog.id(), new ItemsStockRetriever(catalog.id(), portProvider));
+            return stockCache.get(catalog.id(), new ItemsStockRetriever(catalog.id(), portProvider, Optional.ofNullable(ids)));
         } catch (ExecutionException e) {
             log.error("Got exception while retrieving prices and quantities for category {}", catalog);
             return new Stock(new HashMap<>());
@@ -87,10 +87,7 @@ public class CategoryService
         {
             double throttle = getItemsLimiter.acquire();
             log.debug("Waited {} seconds for getItems for catId={} rate limit", throttle, catId);
-            ArrayOfString ids = new ArrayOfString();
-            //TODO:
-            ids.getItem().add("815234");
-            ArrayOfItemsResult result = portProvider.get().getItems(catId, ids, "ДОСТАВКА", 0, 10000, "");
+            ArrayOfItemsResult result = portProvider.get().getItems(catId, null, "ДОСТАВКА", 0, 10000, "");
             return result.getItem()
                     .parallelStream()
                     .filter(ir -> ir.getNo() != null)
@@ -103,10 +100,12 @@ public class CategoryService
         private static final RateLimiter getItemsAvailLimiter = RateLimiter.create(3.0);
         private MLPortProvider portProvider;
         private String catId;
+        private Set<String> ids;
 
-        public ItemsStockRetriever(String catId, MLPortProvider portProvider) {
+        public ItemsStockRetriever(String catId, MLPortProvider portProvider, Optional<Set<String>> ids) {
             this.portProvider = portProvider;
             this.catId = catId;
+            this.ids = ids.orElseGet(HashSet::new);
         }
 
         @Override
@@ -120,13 +119,17 @@ public class CategoryService
             double throttle = getItemsAvailLimiter.acquire();
             log.debug("Waited {} seconds for rate limit", throttle);
             ArrayOfString ids = new ArrayOfString();
-            //TODO:
-            ids.getItem().add("123133");
-            ArrayOfItemsAvailResult availResult = portProvider.get().getItemsAvail(catId, "ДОСТАВКА", "06-05-15", "true", ids);
+            //FIXME: burp
+            if(this.ids.isEmpty())
+                ids = null;
+            else
+                this.ids.forEach(ids.getItem()::add);
+            String shipmentDate = DateTime.now().plusDays(2).toString("dd-MM-yy");
+            ArrayOfItemsAvailResult availResult = portProvider.get().getItemsAvail(catId, "ДОСТАВКА", shipmentDate, "true", ids);
             return availResult.getItem()
                     .parallelStream()
                     .filter(ia -> ia.getNo() != null)
-                    .map(ia -> new StockItem(ia.getPriceClient(), ia.getAvailableClient(), ia.getNo()))
+                    .map(ia -> new StockItem((long)Math.ceil(ia.getPriceClientRUBMSK()), ia.getAvailableClient(), ia.getNo()))
                     .collect(Collectors.toMap(StockItem::id, Function.<StockItem>identity(), (i1, i2) -> i2));
         }
     }

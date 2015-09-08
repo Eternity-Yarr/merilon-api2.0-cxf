@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yarr.merlionapi2.model.Category;
+import org.yarr.merlionapi2.model.Item;
 import org.yarr.merlionapi2.model.Stock;
 import org.yarr.merlionapi2.model.StockAndItem;
 import org.yarr.merlionapi2.service.BindService;
@@ -18,6 +19,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/mlcatalogItems")
@@ -60,7 +62,8 @@ public class CatalogItemsRest
 
     private List<StockAndItem> getItems(String catId) {
         Category cat = categoryService.category(catalogService.get().nodes().get(catId));
-        Stock stock = categoryService.stock(catalogService.get().nodes().get(catId));
+        Set<String> ids = cat.all().stream().map(Item::id).collect(Collectors.toSet());
+        Stock stock = categoryService.stock(catalogService.get().nodes().get(catId), ids);
         return cat.items().values().parallelStream()
                 .map(i -> new StockAndItem(i.id(), i, stock.item(i.id())))
                 .filter(i -> bindService.searchByMerlionId(i.id()) == null)

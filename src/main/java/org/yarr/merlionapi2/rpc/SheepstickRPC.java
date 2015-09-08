@@ -11,18 +11,18 @@ import org.yarr.merlionapi2.model.StockAndItem;
 import org.yarr.merlionapi2.service.BindService;
 import org.yarr.merlionapi2.service.BitrixService;
 import org.yarr.merlionapi2.service.ConfigService;
-import org.yarr.merlionapi2.service.RateService;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.*;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 @Path("/rpc/sheep")
 @Produces(MediaType.APPLICATION_JSON)
@@ -35,7 +35,6 @@ public class SheepstickRPC
     private final BindService bindService;
     private final BitrixService bitrixService;
     private final ItemsRepository itemsRepository;
-    private final RateService rateService;
     private final ConfigService configService;
 
     @Autowired
@@ -43,12 +42,10 @@ public class SheepstickRPC
             BindService bindService,
             BitrixService bitrixService,
             ItemsRepository itemsRepository,
-            RateService rateService,
             ConfigService configService) {
         this.bindService = bindService;
         this.bitrixService = bitrixService;
         this.itemsRepository = itemsRepository;
-        this.rateService = rateService;
         this.configService = configService;
     }
 
@@ -130,7 +127,7 @@ public class SheepstickRPC
                 .ifPresent(inStock -> {
                     long merlionPrice = 0;
                     try {
-                        merlionPrice = (long) Math.ceil(rateService.usd2rub(si.stock().price()));
+                        merlionPrice = (long) Math.ceil(si.stock().price());
                         if (!inStock && currentPrice < merlionPrice) {
                             merlionPrice +=
                                     (long) (Math.ceil(merlionPrice * configService.valudeAddedPercent() / 100.0));
